@@ -37,10 +37,25 @@ export default function RegisterForm({ onRegisterSuccess, onBackToHome }) {
     setIsLoading(true);
 
     try {
-      // Here you would call your register API
-      // For now, we'll just show a success message
+      // Import register function dynamically
+      const { register } = await import('../services/auth');
+      
+      // Register new user as patient by default
+      await register({
+        username: formData.username,
+        password: formData.password,
+        role: 'patient',
+        name: formData.name,
+        email: formData.email,
+        phone: formData.phone
+      });
+      
       alert('¡Registro exitoso! Por favor inicie sesión con sus credenciales.');
-      onBackToHome();
+      if (onRegisterSuccess) {
+        onRegisterSuccess();
+      } else {
+        onBackToHome();
+      }
     } catch (err) {
       setError(err.message || 'Error al registrar usuario');
     } finally {

@@ -1,9 +1,25 @@
-import React, { useState } from 'react';
-import { Calendar, Clock, User, FileText, Activity, Users, Pill, TestTube, LogOut, Heart, Stethoscope, Brain, Eye, Bone, AlertCircle, CheckCircle, Menu, X, Phone } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Calendar, Clock, User, FileText, Activity, Users, Pill, TestTube, LogOut, Heart, Stethoscope, Brain, Eye, Bone, AlertCircle, CheckCircle, Menu, X, Phone, Moon, Sun, Settings, Package, Hospital, Scissors, MessageSquare, BarChart3, Scan } from 'lucide-react';
 import { usePatients, useAppointments, useTreatments, useVitalSigns, useNurseNotes } from './hooks/useDatabase';
 import { logout as authLogout } from './services/auth';
 import LoginForm from './components/LoginForm';
 import RegisterForm from './components/RegisterForm';
+import AdminDashboard from './components/AdminDashboard';
+import DoctorDashboard from './components/DoctorDashboard';
+import NotificationCenter from './components/NotificationCenter';
+import SearchBar from './components/SearchBar';
+import UserProfile from './components/UserProfile';
+import ErrorBoundary from './components/ErrorBoundary';
+import AppointmentCalendar from './components/AppointmentCalendar';
+import PharmacyManagement from './components/PharmacyManagement';
+import EmergencyRoom from './components/EmergencyRoom';
+import SettingsPage from './components/SettingsPage';
+import SurgeryScheduling from './components/SurgeryScheduling';
+import MessagingSystem from './components/MessagingSystem';
+import ReportsAnalytics from './components/ReportsAnalytics';
+import LabManagement from './components/LabManagement';
+import RadiologyManagement from './components/RadiologyManagement';
+import AdvancedDashboard from './components/AdvancedDashboard';
 
 const HospitalManagementSystem = () => {
   const [currentUser, setCurrentUser] = useState(null);
@@ -11,6 +27,40 @@ const HospitalManagementSystem = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [showLoginModal, setShowLoginModal] = useState(false);
   const [showRegisterModal, setShowRegisterModal] = useState(false);
+  const [darkMode, setDarkMode] = useState(false);
+  
+  // Load dark mode preference
+  useEffect(() => {
+    const savedDarkMode = localStorage.getItem('darkMode') === 'true';
+    setDarkMode(savedDarkMode);
+    if (savedDarkMode) {
+      document.documentElement.classList.add('dark');
+    }
+  }, []);
+
+  // Toggle dark mode
+  const toggleDarkMode = () => {
+    const newDarkMode = !darkMode;
+    setDarkMode(newDarkMode);
+    localStorage.setItem('darkMode', newDarkMode.toString());
+    if (newDarkMode) {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+  };
+
+  // Handle search results
+  const handleSearchResult = (result) => {
+    console.log('Search result clicked:', result);
+    // Navigate to appropriate view based on result type
+    if (result.type === 'patient') {
+      setSelectedPatient(result.data);
+      if (currentUser?.role === 'nurse') {
+        setCurrentView('patients');
+      }
+    }
+  };
   
   // Use database hook for patients instead of mock data
   const { patients, loading: patientsLoading, addPatient, updatePatient, removePatient } = usePatients();
@@ -1003,20 +1053,123 @@ const HospitalManagementSystem = () => {
                 <Activity className="text-purple-600 relative" size={32} />
               </div>
               <div>
-                <h1 className="text-xl font-bold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">
+                <h1 className="text-xl font-bold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent cursor-pointer hover:opacity-80 transition"
+                    onClick={() => setCurrentView('dashboard')}>
                   Hospital San Rafael
                 </h1>
                 <p className="text-sm text-gray-600 font-medium">
-                  {currentUser.type === 'nurse' ? '👨‍⚕️ Panel de Enfermería' : '👤 Portal del Paciente'}
+                  {currentUser.type === 'nurse' ? '👨‍⚕️ Panel de Enfermería' : 
+                   currentUser.type === 'admin' ? '⚡ Administración' :
+                   currentUser.role === 'doctor' ? '🩺 Panel Médico' :
+                   '👤 Portal del Paciente'}
                 </p>
               </div>
             </div>
             
-            {/* Desktop User Info & Logout */}
-            <div className="hidden md:flex items-center space-x-4">
+            {/* Search Bar (Desktop) */}
+            <div className="hidden lg:flex flex-1 max-w-2xl mx-6">
+              <SearchBar onSearch={handleSearchResult} />
+            </div>
+            
+            {/* Quick Access Menu */}
+            <div className="hidden lg:flex items-center gap-2 mr-4">
+              <button
+                onClick={() => setCurrentView('calendar')}
+                className="p-2 hover:bg-white/30 rounded-xl transition-all"
+                title="Calendario de Citas"
+              >
+                <Calendar size={20} className="text-gray-700" />
+              </button>
+              <button
+                onClick={() => setCurrentView('pharmacy')}
+                className="p-2 hover:bg-white/30 rounded-xl transition-all"
+                title="Farmacia"
+              >
+                <Pill size={20} className="text-gray-700" />
+              </button>
+              <button
+                onClick={() => setCurrentView('emergency')}
+                className="p-2 hover:bg-white/30 rounded-xl transition-all"
+                title="Emergencias"
+              >
+                <AlertCircle size={20} className="text-red-600" />
+              </button>
+              <button
+                onClick={() => setCurrentView('surgery')}
+                className="p-2 hover:bg-white/30 rounded-xl transition-all"
+                title="Cirugías"
+              >
+                <Scissors size={20} className="text-gray-700" />
+              </button>
+              <button
+                onClick={() => setCurrentView('messaging')}
+                className="p-2 hover:bg-white/30 rounded-xl transition-all"
+                title="Mensajería"
+              >
+                <MessageSquare size={20} className="text-gray-700" />
+              </button>
+              <button
+                onClick={() => setCurrentView('reports')}
+                className="p-2 hover:bg-white/30 rounded-xl transition-all"
+                title="Reportes"
+              >
+                <BarChart3 size={20} className="text-gray-700" />
+              </button>
+              <button
+                onClick={() => setCurrentView('lab')}
+                className="p-2 hover:bg-white/30 rounded-xl transition-all"
+                title="Laboratorio"
+              >
+                <TestTube size={20} className="text-gray-700" />
+              </button>
+              <button
+                onClick={() => setCurrentView('radiology')}
+                className="p-2 hover:bg-white/30 rounded-xl transition-all"
+                title="Radiología"
+              >
+                <Scan size={20} className="text-gray-700" />
+              </button>
+              <button
+                onClick={() => setCurrentView('settings')}
+                className="p-2 hover:bg-white/30 rounded-xl transition-all"
+                title="Configuración"
+              >
+                <Settings size={20} className="text-gray-700" />
+              </button>
+            </div>
+            
+            {/* Desktop User Info, Notifications & Actions */}
+            <div className="hidden md:flex items-center space-x-3">
+              {/* Dark Mode Toggle */}
+              <button
+                onClick={toggleDarkMode}
+                className="p-2 hover:bg-white/30 rounded-xl transition-all"
+                title={darkMode ? 'Modo Claro' : 'Modo Oscuro'}
+              >
+                {darkMode ? <Sun size={22} className="text-gray-700" /> : <Moon size={22} className="text-gray-700" />}
+              </button>
+
+              {/* Notification Center */}
+              <NotificationCenter currentUser={currentUser} />
+
+              {/* Profile Button */}
+              <button
+                onClick={() => setCurrentView('profile')}
+                className="p-2 hover:bg-white/30 rounded-xl transition-all"
+                title="Mi Perfil"
+              >
+                <User size={22} className="text-gray-700" />
+              </button>
+
+              {/* User Info */}
               <div className="text-right bg-gradient-to-r from-purple-50 to-blue-50 px-4 py-2 rounded-xl border border-purple-100">
                 <p className="font-bold text-gray-800">{currentUser.name}</p>
-                <p className="text-sm text-gray-600">{currentUser.type === 'nurse' ? 'Enfermero' : 'Paciente'}</p>
+                <p className="text-sm text-gray-600">
+                  {currentUser.type === 'nurse' ? 'Enfermero' : 
+                   currentUser.type === 'admin' ? 'Administrador' :
+                   currentUser.role === 'doctor' ? 'Médico' :
+                   'Paciente'}
+                </p>
               </div>
               <button
                 onClick={handleLogout}
@@ -1055,6 +1208,88 @@ const HospitalManagementSystem = () => {
                     <p className="font-bold text-gray-800">{currentUser.name}</p>
                     <p className="text-sm text-gray-600">{currentUser.type === 'nurse' ? '👨‍⚕️ Enfermero' : '👤 Paciente'}</p>
                   </div>
+                  
+                  {/* Mobile Menu Items */}
+                  <div className="space-y-2 mb-6">
+                    <button
+                      onClick={() => { setCurrentView('dashboard'); setMobileMenuOpen(false); }}
+                      className="w-full px-4 py-3 bg-gradient-to-r from-purple-500 to-blue-500 text-white rounded-xl hover:from-purple-600 hover:to-blue-600 transition flex items-center space-x-2 font-semibold shadow-md"
+                    >
+                      <Activity size={18} />
+                      <span>Dashboard</span>
+                    </button>
+                    <button
+                      onClick={() => { setCurrentView('calendar'); setMobileMenuOpen(false); }}
+                      className="w-full px-4 py-3 bg-white text-gray-700 rounded-xl hover:bg-gray-50 transition flex items-center space-x-2 font-medium shadow-sm border border-gray-200"
+                    >
+                      <Calendar size={18} />
+                      <span>Calendario</span>
+                    </button>
+                    <button
+                      onClick={() => { setCurrentView('pharmacy'); setMobileMenuOpen(false); }}
+                      className="w-full px-4 py-3 bg-white text-gray-700 rounded-xl hover:bg-gray-50 transition flex items-center space-x-2 font-medium shadow-sm border border-gray-200"
+                    >
+                      <Pill size={18} />
+                      <span>Farmacia</span>
+                    </button>
+                    <button
+                      onClick={() => { setCurrentView('emergency'); setMobileMenuOpen(false); }}
+                      className="w-full px-4 py-3 bg-white text-gray-700 rounded-xl hover:bg-gray-50 transition flex items-center space-x-2 font-medium shadow-sm border border-gray-200"
+                    >
+                      <AlertCircle size={18} />
+                      <span>Emergencias</span>
+                    </button>
+                    <button
+                      onClick={() => { setCurrentView('surgery'); setMobileMenuOpen(false); }}
+                      className="w-full px-4 py-3 bg-white text-gray-700 rounded-xl hover:bg-gray-50 transition flex items-center space-x-2 font-medium shadow-sm border border-gray-200"
+                    >
+                      <Scissors size={18} />
+                      <span>Cirugías</span>
+                    </button>
+                    <button
+                      onClick={() => { setCurrentView('messaging'); setMobileMenuOpen(false); }}
+                      className="w-full px-4 py-3 bg-white text-gray-700 rounded-xl hover:bg-gray-50 transition flex items-center space-x-2 font-medium shadow-sm border border-gray-200"
+                    >
+                      <MessageSquare size={18} />
+                      <span>Mensajería</span>
+                    </button>
+                    <button
+                      onClick={() => { setCurrentView('reports'); setMobileMenuOpen(false); }}
+                      className="w-full px-4 py-3 bg-white text-gray-700 rounded-xl hover:bg-gray-50 transition flex items-center space-x-2 font-medium shadow-sm border border-gray-200"
+                    >
+                      <BarChart3 size={18} />
+                      <span>Reportes</span>
+                    </button>
+                    <button
+                      onClick={() => { setCurrentView('lab'); setMobileMenuOpen(false); }}
+                      className="w-full px-4 py-3 bg-white text-gray-700 rounded-xl hover:bg-gray-50 transition flex items-center space-x-2 font-medium shadow-sm border border-gray-200"
+                    >
+                      <TestTube size={18} />
+                      <span>Laboratorio</span>
+                    </button>
+                    <button
+                      onClick={() => { setCurrentView('radiology'); setMobileMenuOpen(false); }}
+                      className="w-full px-4 py-3 bg-white text-gray-700 rounded-xl hover:bg-gray-50 transition flex items-center space-x-2 font-medium shadow-sm border border-gray-200"
+                    >
+                      <Scan size={18} />
+                      <span>Radiología</span>
+                    </button>
+                    <button
+                      onClick={() => { setCurrentView('profile'); setMobileMenuOpen(false); }}
+                      className="w-full px-4 py-3 bg-white text-gray-700 rounded-xl hover:bg-gray-50 transition flex items-center space-x-2 font-medium shadow-sm border border-gray-200"
+                    >
+                      <User size={18} />
+                      <span>Mi Perfil</span>
+                    </button>
+                    <button
+                      onClick={() => { setCurrentView('settings'); setMobileMenuOpen(false); }}
+                      className="w-full px-4 py-3 bg-white text-gray-700 rounded-xl hover:bg-gray-50 transition flex items-center space-x-2 font-medium shadow-sm border border-gray-200"
+                    >
+                      <Settings size={18} />
+                      <span>Configuración</span>
+                    </button>
+                  </div>
+                  
                   <button
                     onClick={() => { handleLogout(); setMobileMenuOpen(false); }}
                     className="w-full px-4 py-3 bg-gradient-to-r from-red-500 to-pink-500 text-white rounded-xl hover:from-red-600 hover:to-pink-600 transition flex items-center justify-center space-x-2 font-semibold shadow-lg"
@@ -1070,11 +1305,31 @@ const HospitalManagementSystem = () => {
       )}
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 md:py-8">
-        {currentView === 'home' && <HomePage />}
-        {currentView === 'dashboard' && currentUser && (
-          currentUser.type === 'nurse' ? <NurseDashboard /> : <PatientDashboard />
-        )}
-        {currentView === 'patientDetails' && currentUser && currentUser.type === 'nurse' && <PatientDetailsView />}
+        <ErrorBoundary>
+          {currentView === 'home' && <HomePage />}
+          {currentView === 'dashboard' && currentUser && (
+            currentUser.type === 'admin' || currentUser.role === 'admin' ? <AdvancedDashboard currentUser={currentUser} /> :
+            currentUser.role === 'doctor' ? <DoctorDashboard currentUser={currentUser} /> :
+            currentUser.type === 'nurse' ? <NurseDashboard /> : 
+            <PatientDashboard />
+          )}
+          {currentView === 'profile' && currentUser && (
+            <UserProfile 
+              currentUser={currentUser} 
+              onUpdateUser={(updatedUser) => setCurrentUser(updatedUser)}
+            />
+          )}
+          {currentView === 'calendar' && currentUser && <AppointmentCalendar currentUser={currentUser} />}
+          {currentView === 'pharmacy' && currentUser && <PharmacyManagement currentUser={currentUser} />}
+          {currentView === 'emergency' && currentUser && <EmergencyRoom currentUser={currentUser} />}
+          {currentView === 'surgery' && currentUser && <SurgeryScheduling currentUser={currentUser} />}
+          {currentView === 'messaging' && currentUser && <MessagingSystem currentUser={currentUser} />}
+          {currentView === 'reports' && currentUser && <ReportsAnalytics currentUser={currentUser} />}
+          {currentView === 'lab' && currentUser && <LabManagement currentUser={currentUser} />}
+          {currentView === 'radiology' && currentUser && <RadiologyManagement currentUser={currentUser} />}
+          {currentView === 'settings' && currentUser && <SettingsPage currentUser={currentUser} />}
+          {currentView === 'patientDetails' && currentUser && currentUser.type === 'nurse' && <PatientDetailsView />}
+        </ErrorBoundary>
       </div>
 
       {/* Modals that overlay on top */}
