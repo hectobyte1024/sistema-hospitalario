@@ -216,8 +216,18 @@ const HospitalManagementSystem = () => {
 
   const applyTreatment = async () => {
     if (newTreatment.patientId && newTreatment.medication && newTreatment.dose && newTreatment.frequency) {
+      // Usar la hora ingresada o la actual
       const now = new Date();
-      const timestamp = now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0') + '-' + String(now.getDate()).padStart(2, '0') + ' ' + String(now.getHours()).padStart(2, '0') + ':' + String(now.getMinutes()).padStart(2, '0');
+      const dateStr = now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0') + '-' + String(now.getDate()).padStart(2, '0');
+      
+      let applicationTimeStr;
+      if (newTreatment.applicationTime) {
+        applicationTimeStr = newTreatment.applicationTime;
+      } else {
+        applicationTimeStr = String(now.getHours()).padStart(2, '0') + ':' + String(now.getMinutes()).padStart(2, '0');
+      }
+      
+      const timestamp = dateStr + ' ' + applicationTimeStr;
       
       try {
         const newTrt = {
@@ -225,17 +235,17 @@ const HospitalManagementSystem = () => {
           medication: newTreatment.medication,
           dose: newTreatment.dose,
           frequency: newTreatment.frequency,
-          start_date: timestamp.split(' ')[0],
+          start_date: dateStr,
           applied_by: currentUser.name,
           last_application: timestamp,
           notes: newTreatment.notes
         };
         await addTreatmentDB(newTrt);
-        setNewTreatment({ patientId: '', medication: '', dose: '', frequency: '', notes: '' });
-        alert('Tratamiento aplicado y registrado exitosamente');
+        setNewTreatment({ patientId: '', medication: '', dose: '', frequency: '', notes: '', applicationTime: '' });
+        alert('💊 Medicamento administrado y registrado exitosamente');
       } catch (error) {
         console.error('Error applying treatment:', error);
-        alert('Error al aplicar tratamiento. Por favor intente nuevamente.');
+        alert('Error al registrar la administración. Por favor intente nuevamente.');
       }
     } else {
       alert('Por favor complete todos los campos obligatorios');
@@ -841,7 +851,7 @@ const HospitalManagementSystem = () => {
 
   const NurseDashboard = () => {
     // Move nurse-specific state here to prevent parent re-renders
-    const [newTreatment, setNewTreatment] = useState({ patientId: '', medication: '', dose: '', frequency: '', notes: '' });
+    const [newTreatment, setNewTreatment] = useState({ patientId: '', medication: '', dose: '', frequency: '', notes: '', applicationTime: '' });
     const [newVitalSigns, setNewVitalSigns] = useState({ patientId: '', temperature: '', bloodPressure: '', heartRate: '', respiratoryRate: '', dateTime: '' });
     const [newNurseNote, setNewNurseNote] = useState({ patientId: '', note: '', noteType: 'evolutiva' });
     const [assignedPatients, setAssignedPatients] = useState([]);
@@ -1277,7 +1287,7 @@ const HospitalManagementSystem = () => {
         <div className="glass-effect p-6 rounded-2xl shadow-lg border border-gray-200/50">
           <h3 className="text-xl font-bold mb-5 flex items-center bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent">
             <Pill className="mr-2 text-green-600" size={24} />
-            Aplicar Tratamiento
+            Administrar Medicamento
           </h3>
           <div className="space-y-4">
             <select
@@ -1290,6 +1300,21 @@ const HospitalManagementSystem = () => {
                 <option key={p.id} value={p.id}>{p.name} - Hab. {p.room}</option>
               ))}
             </select>
+            
+            <div className="bg-green-50 border border-green-200 rounded-xl p-3">
+              <label className="block text-xs font-semibold text-green-700 mb-2 flex items-center">
+                <Clock className="mr-1" size={14} />
+                Hora de Aplicación
+              </label>
+              <input
+                type="time"
+                className="w-full px-4 py-2.5 bg-white border-2 border-green-200 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all shadow-sm"
+                value={newTreatment.applicationTime}
+                onChange={(e) => setNewTreatment(prev => ({...prev, applicationTime: e.target.value}))}
+              />
+              <p className="text-xs text-green-600 mt-1">⚡ Si no especifica, se usará la hora actual</p>
+            </div>
+            
             <input
               type="text"
               placeholder="💊 Medicamento"
@@ -1323,7 +1348,7 @@ const HospitalManagementSystem = () => {
               className="w-full py-3.5 bg-gradient-to-r from-green-500 to-emerald-500 text-white rounded-xl hover:from-green-600 hover:to-emerald-600 transition-all font-bold shadow-lg hover:shadow-xl flex items-center justify-center"
             >
               <Pill className="mr-2" size={20} />
-              Aplicar y Registrar Tratamiento
+              Registrar Administración
             </button>
           </div>
         </div>
@@ -1603,6 +1628,106 @@ Ejemplo:
             <Activity className="mx-auto mb-3 text-gray-400" size={48} />
             <p>No hay signos vitales registrados</p>
             <p className="text-sm mt-2">Registre los primeros signos vitales del turno arriba</p>
+          </div>
+        )}
+      </div>
+
+      {/* Administración de Medicamentos del Turno */}
+      <div className="glass-effect p-6 rounded-2xl shadow-lg border border-gray-200/50">
+        <div className="flex items-center justify-between mb-5">
+          <h3 className="text-xl font-bold flex items-center bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent">
+            <Pill className="mr-2 text-green-600" size={24} />
+            Administración de Medicamentos del Turno
+          </h3>
+          <span className="px-3 py-1 bg-green-100 text-green-700 rounded-full text-sm font-semibold">
+            {treatments.filter(treatment => {
+              const treatmentDate = new Date(treatment.lastApplication);
+              const today = new Date();
+              return treatmentDate.toDateString() === today.toDateString();
+            }).length} administraciones hoy
+          </span>
+        </div>
+        
+        {treatments.length > 0 ? (
+          <div className="space-y-3 max-h-[500px] overflow-y-auto pr-2">
+            {treatments.slice().reverse().map((treatment, index) => {
+              const patient = patients.find(p => p.id === treatment.patientId);
+              const treatmentDate = new Date(treatment.lastApplication);
+              const today = new Date();
+              const isToday = treatmentDate.toDateString() === today.toDateString();
+              const isRecent = (Date.now() - treatmentDate.getTime()) < 3600000; // Última hora
+              
+              // Extraer solo la hora de la última aplicación
+              const applicationTime = treatmentDate.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
+              
+              return (
+                <div 
+                  key={treatment.id || index} 
+                  className="border-l-4 border-green-300 bg-green-50 rounded-xl p-4 hover:shadow-md transition-all"
+                >
+                  <div className="flex items-start justify-between mb-3">
+                    <div className="flex items-center gap-2">
+                      <Pill className="text-green-600" size={20} />
+                      <div>
+                        <p className="font-bold text-gray-800">
+                          {patient ? patient.name : 'Paciente desconocido'}
+                          {isToday && <span className="ml-2 text-xs bg-blue-500 text-white px-2 py-0.5 rounded-full">HOY</span>}
+                          {isRecent && <span className="ml-2 text-xs bg-green-500 text-white px-2 py-0.5 rounded-full">RECIENTE</span>}
+                        </p>
+                        <p className="text-xs text-gray-500">
+                          🏥 Habitación {patient?.room} • 
+                          <Clock className="inline ml-1 mr-1" size={12} />
+                          Hora de aplicación: <span className="font-bold text-green-700">{applicationTime}</span>
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-3 pl-7">
+                    <div className="bg-white p-2.5 rounded-lg">
+                      <p className="text-xs text-gray-600 flex items-center gap-1">
+                        💊 Medicamento
+                      </p>
+                      <p className="font-bold text-sm text-gray-800">{treatment.medication}</p>
+                    </div>
+                    <div className="bg-white p-2.5 rounded-lg">
+                      <p className="text-xs text-gray-600 flex items-center gap-1">
+                        📊 Dosis
+                      </p>
+                      <p className="font-bold text-sm text-gray-800">{treatment.dose}</p>
+                    </div>
+                    <div className="bg-white p-2.5 rounded-lg">
+                      <p className="text-xs text-gray-600 flex items-center gap-1">
+                        ⏰ Frecuencia
+                      </p>
+                      <p className="font-bold text-sm text-gray-800">{treatment.frequency}</p>
+                    </div>
+                  </div>
+                  
+                  {treatment.notes && (
+                    <div className="bg-white p-2.5 rounded-lg mb-3 pl-7">
+                      <p className="text-xs text-gray-600 mb-1">📝 Notas:</p>
+                      <p className="text-sm text-gray-700 italic">{treatment.notes}</p>
+                    </div>
+                  )}
+                  
+                  <div className="flex items-center justify-between pl-7 pt-2 border-t border-green-200">
+                    <p className="text-xs text-gray-500">
+                      👨‍⚕️ Administrado por: <span className="font-semibold">{treatment.appliedBy}</span>
+                    </p>
+                    <p className="text-xs text-gray-400">
+                      #{treatment.id}
+                    </p>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        ) : (
+          <div className="text-center py-8 text-gray-500">
+            <Pill className="mx-auto mb-3 text-gray-400" size={48} />
+            <p>No hay medicamentos administrados</p>
+            <p className="text-sm mt-2">Registre la primera administración del turno arriba</p>
           </div>
         )}
       </div>
