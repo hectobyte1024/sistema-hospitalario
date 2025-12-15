@@ -176,76 +176,86 @@ export default function PharmacyManagement({ currentUser }) {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 dark:from-gray-900 dark:via-slate-900 dark:to-indigo-950 p-6">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 dark:from-gray-900 dark:via-slate-900 dark:to-indigo-950 p-8">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
-        <div className="mb-6">
-          <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent flex items-center gap-3">
-            <Pill className="w-10 h-10 text-blue-600" />
+        <div className="mb-8 bg-gradient-to-r from-green-600 via-emerald-600 to-teal-600 rounded-3xl p-10 shadow-[0_20px_60px_-15px_rgba(0,0,0,0.3)] border-4 border-green-200">
+          <h1 className="text-5xl md:text-6xl font-bold text-white flex items-center gap-4">
+            <div className="bg-white/20 p-5 rounded-2xl backdrop-blur-xl">
+              <Pill className="w-16 h-16 text-white" />
+            </div>
             Gestión de Farmacia
           </h1>
-          <p className="text-gray-600 dark:text-gray-400 mt-2">
-            Control de inventario y medicamentos
+          <p className="text-green-100 mt-4 text-2xl font-medium">
+            💊 Control de inventario y medicamentos
           </p>
         </div>
 
         {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
-          <div className="bg-gradient-to-br from-blue-500 to-blue-600 text-white rounded-2xl p-6 shadow-xl">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
+          <div className="bg-gradient-to-br from-blue-500 via-blue-600 to-blue-700 text-white rounded-3xl p-8 shadow-[0_20px_60px_-15px_rgba(59,130,246,0.5)] hover:shadow-[0_25px_70px_-15px_rgba(59,130,246,0.6)] transition-all hover:scale-105">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-blue-100 text-sm">Total Artículos</p>
-                <p className="text-3xl font-bold mt-2">{totalItems}</p>
+                <p className="text-blue-100 text-lg font-medium">Total Artículos</p>
+                <p className="text-5xl font-bold mt-3">{totalItems}</p>
               </div>
-              <Package className="w-12 h-12 opacity-50" />
+              <div className="bg-white/20 p-4 rounded-2xl">
+                <Package className="w-16 h-16" />
+              </div>
             </div>
           </div>
 
-          <div className="bg-gradient-to-br from-green-500 to-green-600 text-white rounded-2xl p-6 shadow-xl">
+          <div className="bg-gradient-to-br from-green-500 via-green-600 to-green-700 text-white rounded-3xl p-8 shadow-[0_20px_60px_-15px_rgba(34,197,94,0.5)] hover:shadow-[0_25px_70px_-15px_rgba(34,197,94,0.6)] transition-all hover:scale-105">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-green-100 text-sm">Valor Total</p>
-                <p className="text-3xl font-bold mt-2">${totalValue.toFixed(2)}</p>
+                <p className="text-green-100 text-lg font-medium">Valor Total</p>
+                <p className="text-5xl font-bold mt-3">${totalValue.toFixed(2)}</p>
               </div>
-              <TrendingUp className="w-12 h-12 opacity-50" />
+              <div className="bg-white/20 p-4 rounded-2xl">
+                <TrendingUp className="w-16 h-16" />
+              </div>
             </div>
           </div>
 
-          <div className="bg-gradient-to-br from-yellow-500 to-yellow-600 text-white rounded-2xl p-6 shadow-xl">
+          <div className="bg-gradient-to-br from-yellow-500 via-yellow-600 to-yellow-700 text-white rounded-3xl p-8 shadow-[0_20px_60px_-15px_rgba(234,179,8,0.5)] hover:shadow-[0_25px_70px_-15px_rgba(234,179,8,0.6)] transition-all hover:scale-105">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-yellow-100 text-sm">Stock Bajo</p>
-                <p className="text-3xl font-bold mt-2">{lowStockItems.length}</p>
+                <p className="text-yellow-100 text-lg font-medium">Stock Bajo</p>
+                <p className="text-5xl font-bold mt-3">{lowStockItems.length}</p>
               </div>
-              <TrendingDown className="w-12 h-12 opacity-50" />
+              <div className="bg-white/20 p-4 rounded-2xl">
+                <TrendingDown className="w-16 h-16" />
+              </div>
             </div>
           </div>
 
-          <div className="bg-gradient-to-br from-red-500 to-red-600 text-white rounded-2xl p-6 shadow-xl">
+          <div className="bg-gradient-to-br from-red-500 via-red-600 to-red-700 text-white rounded-3xl p-8 shadow-[0_20px_60px_-15px_rgba(239,68,68,0.5)] hover:shadow-[0_25px_70px_-15px_rgba(239,68,68,0.6)] transition-all hover:scale-105">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-red-100 text-sm">Por Caducar</p>
-                <p className="text-3xl font-bold mt-2">{expiringItems.length}</p>
+                <p className="text-red-100 text-lg font-medium">Por Caducar</p>
+                <p className="text-5xl font-bold mt-3">{expiringItems.length}</p>
               </div>
-              <AlertTriangle className="w-12 h-12 opacity-50" />
+              <div className="bg-white/20 p-4 rounded-2xl">
+                <AlertTriangle className="w-16 h-16" />
+              </div>
             </div>
           </div>
         </div>
 
-        <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl rounded-2xl shadow-2xl border border-white/20 dark:border-gray-700/20 overflow-hidden">
+        <div className="bg-gradient-to-br from-white via-green-50/30 to-white dark:bg-gray-800/80 backdrop-blur-xl rounded-3xl shadow-[0_25px_70px_-15px_rgba(0,0,0,0.3)] border-4 border-green-200 dark:border-gray-700/20 overflow-hidden">
           {/* Tabs */}
-          <div className="border-b border-gray-200 dark:border-gray-700">
+          <div className="border-b-4 border-green-200 dark:border-gray-700 bg-gradient-to-r from-green-50 to-emerald-50">
             <div className="flex overflow-x-auto">
               <button
                 onClick={() => setActiveTab('inventory')}
-                className={`px-6 py-4 font-medium transition-all whitespace-nowrap ${
+                className={`px-8 py-5 font-bold text-lg transition-all whitespace-nowrap ${
                   activeTab === 'inventory'
-                    ? 'text-blue-600 dark:text-blue-400 border-b-2 border-blue-600 dark:border-blue-400 bg-blue-50/50 dark:bg-blue-900/20'
-                    : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200'
+                    ? 'text-green-700 dark:text-blue-400 border-b-4 border-green-600 dark:border-blue-400 bg-white shadow-lg'
+                    : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 hover:bg-white/50'
                 }`}
               >
-                <div className="flex items-center gap-2">
-                  <Package className="w-4 h-4" />
+                <div className="flex items-center gap-3">
+                  <Package className="w-6 h-6" />
                   Inventario ({filteredInventory.length})
                 </div>
               </button>

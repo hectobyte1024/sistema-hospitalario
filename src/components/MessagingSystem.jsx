@@ -397,61 +397,63 @@ const MessagingSystem = ({ currentUser }) => {
   const activeGroups = conversations.filter(c => c.type === 'group' && c.status === 'active').length;
 
   return (
-    <div className="h-[calc(100vh-120px)] flex gap-6 p-6 animate-fadeIn">
+    <div className="h-[calc(100vh-120px)] flex gap-8 p-8 animate-fadeIn bg-gradient-to-br from-purple-50 via-blue-50 to-indigo-100">
       {/* Sidebar - Conversations List */}
-      <div className="w-96 bg-white dark:bg-gray-800 rounded-2xl shadow-lg flex flex-col">
+      <div className="w-[28rem] bg-gradient-to-br from-white via-purple-50/30 to-white dark:bg-gray-800 rounded-3xl shadow-[0_20px_60px_-15px_rgba(0,0,0,0.3)] border-4 border-purple-100 flex flex-col">
         {/* Sidebar Header */}
-        <div className="p-6 border-b border-gray-200 dark:border-gray-700">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-2xl font-bold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent flex items-center gap-2">
-              <MessageSquare size={28} />
+        <div className="p-8 border-b-4 border-purple-200 dark:border-gray-700 bg-gradient-to-r from-purple-600 to-blue-600 rounded-t-[1.5rem]">
+          <div className="flex items-center justify-between mb-5">
+            <h2 className="text-3xl font-bold text-white flex items-center gap-3">
+              <div className="bg-white/20 p-3 rounded-xl backdrop-blur-xl">
+                <MessageSquare size={36} />
+              </div>
               Mensajes
             </h2>
             <button
               onClick={() => setShowNewChatModal(true)}
-              className="p-2 hover:bg-purple-100 dark:hover:bg-purple-900 rounded-lg transition-colors"
+              className="p-3 bg-white/20 hover:bg-white/30 rounded-xl transition-all backdrop-blur-xl hover:scale-110"
               title="Nuevo chat"
             >
-              <MessageSquare size={20} className="text-purple-600" />
+              <MessageSquare size={24} className="text-white" />
             </button>
           </div>
 
           {/* Stats */}
-          <div className="grid grid-cols-3 gap-2 mb-4">
-            <div className="bg-gradient-to-br from-red-500 to-red-600 rounded-lg p-2 text-white text-center">
-              <p className="text-2xl font-bold">{unreadCount}</p>
-              <p className="text-xs">No leídos</p>
+          <div className="grid grid-cols-3 gap-3 mb-5">
+            <div className="bg-white/20 backdrop-blur-xl rounded-2xl p-4 text-white text-center hover:scale-105 transition-all">
+              <p className="text-4xl font-bold">{unreadCount}</p>
+              <p className="text-sm font-medium mt-1">No leídos</p>
             </div>
-            <div className="bg-gradient-to-br from-green-500 to-green-600 rounded-lg p-2 text-white text-center">
-              <p className="text-2xl font-bold">{onlineContacts}</p>
-              <p className="text-xs">En línea</p>
+            <div className="bg-white/20 backdrop-blur-xl rounded-2xl p-4 text-white text-center hover:scale-105 transition-all">
+              <p className="text-4xl font-bold">{onlineContacts}</p>
+              <p className="text-sm font-medium mt-1">En línea</p>
             </div>
-            <div className="bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg p-2 text-white text-center">
-              <p className="text-2xl font-bold">{activeGroups}</p>
-              <p className="text-xs">Grupos</p>
+            <div className="bg-white/20 backdrop-blur-xl rounded-2xl p-4 text-white text-center hover:scale-105 transition-all">
+              <p className="text-4xl font-bold">{activeGroups}</p>
+              <p className="text-sm font-medium mt-1">Grupos</p>
             </div>
           </div>
 
           {/* Search */}
           <div className="relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
+            <Search className="absolute left-5 top-1/2 transform -translate-y-1/2 text-white/60" size={24} />
             <input
               type="text"
               placeholder="Buscar conversaciones..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-purple-500 dark:bg-gray-700 text-sm"
+              className="w-full pl-14 pr-5 py-4 border-2 border-white/30 bg-white/20 backdrop-blur-xl text-white placeholder-white/60 rounded-2xl focus:ring-4 focus:ring-white/30 text-lg font-medium"
             />
           </div>
 
           {/* Filters */}
-          <div className="flex gap-2 mt-3">
+          <div className="flex gap-3 mt-4">
             <button
               onClick={() => setFilterStatus('all')}
-              className={`flex-1 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
+              className={`flex-1 px-5 py-3 rounded-xl text-base font-bold transition-all ${
                 filterStatus === 'all'
-                  ? 'bg-purple-600 text-white'
-                  : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400'
+                  ? 'bg-white text-purple-600 shadow-lg'
+                  : 'bg-white/20 backdrop-blur-xl text-white hover:bg-white/30'
               }`}
             >
               Todos

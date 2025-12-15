@@ -363,87 +363,103 @@ const RadiologyManagement = ({ currentUser }) => {
   const criticalStudies = radiologyStudies.filter(s => s.urgentAlert).length;
 
   return (
-    <div className="p-6 space-y-6 animate-fadeIn">
+    <div className="p-8 space-y-8 animate-fadeIn min-h-screen bg-gradient-to-br from-purple-50 via-pink-50 to-indigo-100">
       {/* Header */}
-      <div className="flex justify-between items-center">
-        <div>
-          <h1 className="text-3xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent flex items-center gap-3">
-            <Scan className="text-purple-600" size={32} />
-            Radiología e Imágenes
-          </h1>
-          <p className="text-gray-600 dark:text-gray-400 mt-1">
-            Sistema de gestión de estudios radiológicos y PACS
-          </p>
+      <div className="bg-gradient-to-r from-purple-600 via-pink-600 to-fuchsia-600 rounded-3xl p-10 shadow-[0_20px_60px_-15px_rgba(0,0,0,0.3)] border-4 border-purple-200">
+        <div className="flex justify-between items-center">
+          <div>
+            <h1 className="text-5xl md:text-6xl font-bold text-white flex items-center gap-4">
+              <div className="bg-white/20 p-5 rounded-2xl backdrop-blur-xl">
+                <Scan className="text-white" size={64} />
+              </div>
+              Radiología e Imágenes
+            </h1>
+            <p className="text-purple-100 mt-4 text-2xl font-medium">
+              🩻 Sistema de gestión de estudios radiológicos y PACS
+            </p>
+          </div>
+          <button
+            onClick={() => {
+              setEditingStudy(null);
+              setShowStudyForm(true);
+            }}
+            className="bg-white text-purple-600 px-8 py-5 rounded-2xl hover:shadow-2xl transition-all flex items-center gap-3 text-xl font-bold hover:scale-105"
+          >
+            <Plus size={28} />
+            Nuevo Estudio
+          </button>
         </div>
-        <button
-          onClick={() => {
-            setEditingStudy(null);
-            setShowStudyForm(true);
-          }}
-          className="bg-gradient-to-r from-purple-600 to-pink-600 text-white px-6 py-3 rounded-xl hover:shadow-lg transition-all flex items-center gap-2"
-        >
-          <Plus size={20} />
-          Nuevo Estudio
-        </button>
       </div>
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-6 gap-4">
-        <div className="bg-gradient-to-br from-purple-500 to-purple-600 rounded-2xl p-4 text-white shadow-lg">
-          <div className="flex items-center justify-between mb-2">
-            <Scan size={24} className="text-purple-200" />
+      <div className="grid grid-cols-1 md:grid-cols-6 gap-6">
+        <div className="bg-gradient-to-br from-purple-500 via-purple-600 to-purple-700 rounded-3xl p-8 text-white shadow-[0_20px_60px_-15px_rgba(168,85,247,0.5)] hover:shadow-[0_25px_70px_-15px_rgba(168,85,247,0.6)] transition-all hover:scale-105">
+          <div className="flex items-center justify-between mb-3">
+            <div className="bg-white/20 p-3 rounded-xl">
+              <Scan size={32} className="text-white" />
+            </div>
           </div>
-          <p className="text-purple-100 text-xs">Total Estudios</p>
-          <p className="text-2xl font-bold mt-1">{totalStudies}</p>
+          <p className="text-purple-100 text-base font-medium">Total Estudios</p>
+          <p className="text-4xl font-bold mt-2">{totalStudies}</p>
         </div>
 
-        <div className="bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl p-4 text-white shadow-lg">
-          <div className="flex items-center justify-between mb-2">
-            <Calendar size={24} className="text-blue-200" />
+        <div className="bg-gradient-to-br from-blue-500 via-blue-600 to-blue-700 rounded-3xl p-8 text-white shadow-[0_20px_60px_-15px_rgba(59,130,246,0.5)] hover:shadow-[0_25px_70px_-15px_rgba(59,130,246,0.6)] transition-all hover:scale-105">
+          <div className="flex items-center justify-between mb-3">
+            <div className="bg-white/20 p-3 rounded-xl">
+              <Calendar size={32} className="text-white" />
+            </div>
           </div>
-          <p className="text-blue-100 text-xs">Programados</p>
-          <p className="text-2xl font-bold mt-1">{scheduledStudies}</p>
+          <p className="text-blue-100 text-base font-medium">Programados</p>
+          <p className="text-4xl font-bold mt-2">{scheduledStudies}</p>
         </div>
 
-        <div className="bg-gradient-to-br from-yellow-500 to-yellow-600 rounded-2xl p-4 text-white shadow-lg animate-pulse">
-          <div className="flex items-center justify-between mb-2">
-            <Activity size={24} className="text-yellow-200" />
+        <div className="bg-gradient-to-br from-yellow-500 via-yellow-600 to-yellow-700 rounded-3xl p-8 text-white shadow-[0_20px_60px_-15px_rgba(234,179,8,0.5)] hover:shadow-[0_25px_70px_-15px_rgba(234,179,8,0.6)] transition-all hover:scale-105 animate-pulse">
+          <div className="flex items-center justify-between mb-3">
+            <div className="bg-white/20 p-3 rounded-xl">
+              <Activity size={32} className="text-white" />
+            </div>
           </div>
-          <p className="text-yellow-100 text-xs">En Proceso</p>
-          <p className="text-2xl font-bold mt-1">{inProgressStudies}</p>
+          <p className="text-yellow-100 text-base font-medium">En Proceso</p>
+          <p className="text-4xl font-bold mt-2">{inProgressStudies}</p>
         </div>
 
-        <div className="bg-gradient-to-br from-green-500 to-green-600 rounded-2xl p-4 text-white shadow-lg">
-          <div className="flex items-center justify-between mb-2">
-            <CheckCircle size={24} className="text-green-200" />
+        <div className="bg-gradient-to-br from-green-500 via-green-600 to-green-700 rounded-3xl p-8 text-white shadow-[0_20px_60px_-15px_rgba(34,197,94,0.5)] hover:shadow-[0_25px_70px_-15px_rgba(34,197,94,0.6)] transition-all hover:scale-105">
+          <div className="flex items-center justify-between mb-3">
+            <div className="bg-white/20 p-3 rounded-xl">
+              <CheckCircle size={32} className="text-white" />
+            </div>
           </div>
-          <p className="text-green-100 text-xs">Reportados</p>
-          <p className="text-2xl font-bold mt-1">{reportedStudies}</p>
+          <p className="text-green-100 text-base font-medium">Reportados</p>
+          <p className="text-4xl font-bold mt-2">{reportedStudies}</p>
         </div>
 
-        <div className="bg-gradient-to-br from-orange-500 to-orange-600 rounded-2xl p-4 text-white shadow-lg">
-          <div className="flex items-center justify-between mb-2">
-            <AlertCircle size={24} className="text-orange-200" />
+        <div className="bg-gradient-to-br from-orange-500 via-orange-600 to-orange-700 rounded-3xl p-8 text-white shadow-[0_20px_60px_-15px_rgba(249,115,22,0.5)] hover:shadow-[0_25px_70px_-15px_rgba(249,115,22,0.6)] transition-all hover:scale-105">
+          <div className="flex items-center justify-between mb-3">
+            <div className="bg-white/20 p-3 rounded-xl">
+              <AlertCircle size={32} className="text-white" />
+            </div>
           </div>
-          <p className="text-orange-100 text-xs">Urgentes</p>
-          <p className="text-2xl font-bold mt-1">{urgentStudies}</p>
+          <p className="text-orange-100 text-base font-medium">Urgentes</p>
+          <p className="text-4xl font-bold mt-2">{urgentStudies}</p>
         </div>
 
-        <div className="bg-gradient-to-br from-red-500 to-red-600 rounded-2xl p-4 text-white shadow-lg animate-pulse">
-          <div className="flex items-center justify-between mb-2">
-            <AlertCircle size={24} className="text-red-200" />
+        <div className="bg-gradient-to-br from-red-500 via-red-600 to-red-700 rounded-3xl p-8 text-white shadow-[0_20px_60px_-15px_rgba(239,68,68,0.5)] hover:shadow-[0_25px_70px_-15px_rgba(239,68,68,0.6)] transition-all hover:scale-105 animate-pulse">
+          <div className="flex items-center justify-between mb-3">
+            <div className="bg-white/20 p-3 rounded-xl">
+              <AlertCircle size={32} className="text-white" />
+            </div>
           </div>
-          <p className="text-red-100 text-xs">Críticos</p>
-          <p className="text-2xl font-bold mt-1">{criticalStudies}</p>
+          <p className="text-red-100 text-base font-medium">Críticos</p>
+          <p className="text-4xl font-bold mt-2">{criticalStudies}</p>
         </div>
       </div>
 
       {/* Filters */}
-      <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-6">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+      <div className="bg-gradient-to-br from-white via-purple-50/30 to-white dark:bg-gray-800 rounded-3xl shadow-[0_20px_60px_-15px_rgba(0,0,0,0.2)] p-8 border-4 border-purple-100">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
           {/* Search */}
           <div className="relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
+            <Search className="absolute left-5 top-1/2 transform -translate-y-1/2 text-gray-400" size={24} />
             <input
               type="text"
               placeholder="Buscar paciente, estudio..."

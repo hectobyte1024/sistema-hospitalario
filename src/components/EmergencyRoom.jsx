@@ -135,16 +135,18 @@ export default function EmergencyRoom({ currentUser }) {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-red-50 to-orange-100 dark:from-gray-900 dark:via-red-900/20 dark:to-orange-900/20 p-6">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-red-50 to-orange-100 dark:from-gray-900 dark:via-red-900/20 dark:to-orange-900/20 p-8">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
-        <div className="mb-6">
-          <h1 className="text-4xl font-bold bg-gradient-to-r from-red-600 to-orange-600 bg-clip-text text-transparent flex items-center gap-3">
-            <AlertCircle className="w-10 h-10 text-red-600 animate-pulse" />
+        <div className="mb-8 bg-gradient-to-r from-red-600 via-orange-600 to-red-700 rounded-3xl p-10 shadow-[0_20px_60px_-15px_rgba(0,0,0,0.3)] border-4 border-red-200">
+          <h1 className="text-5xl md:text-6xl font-bold text-white flex items-center gap-4">
+            <div className="bg-white/20 p-5 rounded-2xl backdrop-blur-xl animate-pulse">
+              <AlertCircle className="w-16 h-16 text-white" />
+            </div>
             Sala de Emergencias
           </h1>
-          <p className="text-gray-600 dark:text-gray-400 mt-2">
-            Sistema de Triage y Gestión de Emergencias
+          <p className="text-red-100 mt-4 text-2xl font-medium">
+            🚨 Sistema de Triage y Gestión de Emergencias
           </p>
         </div>
 

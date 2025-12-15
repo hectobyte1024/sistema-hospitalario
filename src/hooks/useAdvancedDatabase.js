@@ -274,7 +274,22 @@ export function usePharmacy() {
     await loadPharmacy();
   };
 
-  return { inventory, lowStock, expiring, loading, addItem, editItem, refresh: loadPharmacy };
+  const removeItem = async (id) => {
+    // Placeholder for delete functionality
+    console.log('Delete item:', id);
+    await loadPharmacy();
+  };
+
+  return { 
+    inventory, 
+    lowStockItems: lowStock, 
+    expiringItems: expiring, 
+    loading, 
+    createItem: addItem, 
+    updateItem: editItem, 
+    deleteItem: removeItem,
+    refresh: loadPharmacy 
+  };
 }
 
 // Emergency Hook

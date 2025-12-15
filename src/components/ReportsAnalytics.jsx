@@ -131,19 +131,22 @@ const ReportsAnalytics = ({ currentUser }) => {
   };
 
   return (
-    <div className="p-6 space-y-6 animate-fadeIn">
+    <div className="p-8 space-y-8 animate-fadeIn min-h-screen bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-100">
       {/* Header */}
-      <div className="flex justify-between items-start">
-        <div>
-          <h1 className="text-3xl font-bold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent flex items-center gap-3">
-            <BarChart3 size={32} />
-            Reportes y Análisis
-          </h1>
-          <p className="text-gray-600 dark:text-gray-400 mt-1">
-            Estadísticas avanzadas y reportes del sistema hospitalario
-          </p>
-        </div>
-        <div className="flex gap-2">
+      <div className="bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 rounded-3xl p-10 shadow-[0_20px_60px_-15px_rgba(0,0,0,0.3)] border-4 border-indigo-200">
+        <div className="flex justify-between items-start">
+          <div>
+            <h1 className="text-5xl md:text-6xl font-bold text-white flex items-center gap-4">
+              <div className="bg-white/20 p-5 rounded-2xl backdrop-blur-xl">
+                <BarChart3 size={64} />
+              </div>
+              Reportes y Análisis
+            </h1>
+            <p className="text-indigo-100 mt-4 text-2xl font-medium">
+              📊 Estadísticas avanzadas y reportes del sistema hospitalario
+            </p>
+          </div>
+          <div className="flex gap-3">
           <button
             onClick={exportToPDF}
             className="px-4 py-2 bg-red-600 text-white rounded-xl hover:shadow-lg transition-all flex items-center gap-2"

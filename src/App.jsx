@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback, lazy, Suspense, useMemo } from 'react';
-import { Calendar, Clock, User, FileText, Activity, Users, Pill, TestTube, LogOut, Heart, Stethoscope, Brain, Eye, Bone, AlertCircle, CheckCircle, Menu, X, Phone, Moon, Sun, Settings, Package, Hospital, Scissors, MessageSquare, BarChart3, Scan, Keyboard as KeyboardIcon } from 'lucide-react';
+import { Calendar, Clock, User, FileText, Activity, Users, Pill, TestTube, LogOut, Heart, Stethoscope, Brain, Eye, Bone, AlertCircle, CheckCircle, Menu, X, Phone, Moon, Sun, Settings, Package, Hospital, Scissors, MessageSquare, BarChart3, Scan, Keyboard as KeyboardIcon, UserCheck } from 'lucide-react';
 import { usePatients, useAppointments, useTreatments, useVitalSigns, useNurseNotes, usePatientTransfers, useNonPharmaTreatments } from './hooks/useDatabase';
 import { logout as authLogout } from './services/auth';
 import LoginForm from './components/LoginForm';
@@ -172,6 +172,9 @@ const HospitalManagementSystem = () => {
   
   // Use database hook for nurse notes
   const { nurseNotes, loading: nurseNotesLoading, addNurseNote: addNurseNoteDB } = useNurseNotes();
+
+  // Use database hook for non-pharmaceutical treatments
+  const { nonPharmaTreatments, loading: nonPharmaTreatmentsLoading, addNonPharmaTreatment: addNonPharmaTreatmentDB } = useNonPharmaTreatments();
 
   // Keep lab tests and medical history as local state for now (can be migrated later)
   const [labTests, setLabTests] = useState([
@@ -687,42 +690,44 @@ const HospitalManagementSystem = () => {
           </div>
         )}
 
-        <div className="bg-white p-4 md:p-6 rounded-lg shadow-md">
-          <div className="flex flex-col md:flex-row md:items-center justify-between mb-4 gap-3">
-            <div className="flex items-center">
-              <Activity className="mr-2 text-red-600" size={20} />
-              <h3 className="text-lg md:text-xl font-bold">Historial de Signos Vitales</h3>
+        <div className="bg-white p-6 md:p-8 rounded-2xl shadow-2xl border-2 border-red-100">
+          <div className="flex flex-col md:flex-row md:items-center justify-between mb-6 gap-3">
+            <div className="flex items-center gap-3">
+              <div className="bg-red-100 p-3 rounded-xl">
+                <Activity className="text-red-600" size={32} />
+              </div>
+              <h3 className="text-2xl md:text-3xl font-bold">Historial de Signos Vitales</h3>
             </div>
-            <span className="px-3 py-1 bg-red-100 text-red-700 rounded-full text-xs font-semibold w-fit">
+            <span className="px-6 py-3 bg-gradient-to-r from-red-500 to-red-700 text-white rounded-2xl text-lg font-semibold w-fit shadow-lg">
               {filteredVitals.length} de {patientVitals.length} {patientVitals.length === 1 ? 'registro' : 'registros'}
             </span>
           </div>
           
           {/* Filtros */}
-          <div className="bg-gradient-to-r from-red-50 to-pink-50 border-2 border-red-200 rounded-xl p-4 mb-4">
-            <div className="flex items-center justify-between mb-3">
-              <h4 className="text-sm font-bold text-red-800 flex items-center">
-                🔍 Filtros de Búsqueda
+          <div className="bg-gradient-to-br from-red-50 via-pink-50 to-red-50 border-4 border-red-300 rounded-2xl p-6 mb-6 shadow-xl hover:shadow-2xl transition-all">
+            <div className="flex items-center justify-between mb-5">
+              <h4 className="text-xl font-bold text-red-800 flex items-center gap-2">
+                <span className="text-2xl">🔍</span> Filtros de Búsqueda
               </h4>
               {(vitalFilters.dateFrom || vitalFilters.dateTo || vitalFilters.shift !== 'all') && (
                 <button
                   onClick={clearVitalFilters}
-                  className="text-xs px-3 py-1 bg-red-500 text-white rounded-full hover:bg-red-600 transition-all font-semibold"
+                  className="text-base px-5 py-2.5 bg-gradient-to-r from-red-500 to-red-700 text-white rounded-2xl hover:shadow-lg transition-all font-semibold"
                 >
                   ✕ Limpiar
                 </button>
               )}
             </div>
             
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
               {/* Filtro de fecha desde */}
               <div>
-                <label className="block text-xs font-semibold text-red-700 mb-1">
-                  📅 Fecha Desde
+                <label className="block text-lg font-semibold text-red-700 mb-3 flex items-center gap-2">
+                  <span className="text-xl">📅</span> Fecha Desde
                 </label>
                 <input
                   type="date"
-                  className="w-full px-3 py-2 bg-white border-2 border-red-200 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent text-sm"
+                  className="w-full px-5 py-4 bg-white border-4 border-red-200 rounded-2xl focus:ring-4 focus:ring-red-500 focus:border-transparent text-lg shadow-lg hover:shadow-xl transition-all font-semibold"
                   value={vitalFilters.dateFrom}
                   onChange={(e) => setVitalFilters(prev => ({...prev, dateFrom: e.target.value}))}
                 />
@@ -730,12 +735,12 @@ const HospitalManagementSystem = () => {
               
               {/* Filtro de fecha hasta */}
               <div>
-                <label className="block text-xs font-semibold text-red-700 mb-1">
-                  📅 Fecha Hasta
+                <label className="block text-lg font-semibold text-red-700 mb-3 flex items-center gap-2">
+                  <span className="text-xl">📅</span> Fecha Hasta
                 </label>
                 <input
                   type="date"
-                  className="w-full px-3 py-2 bg-white border-2 border-red-200 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent text-sm"
+                  className="w-full px-5 py-4 bg-white border-4 border-red-200 rounded-2xl focus:ring-4 focus:ring-red-500 focus:border-transparent text-lg shadow-lg hover:shadow-xl transition-all font-semibold"
                   value={vitalFilters.dateTo}
                   onChange={(e) => setVitalFilters(prev => ({...prev, dateTo: e.target.value}))}
                 />
@@ -743,11 +748,11 @@ const HospitalManagementSystem = () => {
               
               {/* Filtro de turno */}
               <div>
-                <label className="block text-xs font-semibold text-red-700 mb-1">
-                  🕐 Turno
+                <label className="block text-lg font-semibold text-red-700 mb-3 flex items-center gap-2">
+                  <span className="text-xl">🕐</span> Turno
                 </label>
                 <select
-                  className="w-full px-3 py-2 bg-white border-2 border-red-200 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent text-sm font-semibold"
+                  className="w-full px-5 py-4 bg-white border-4 border-red-200 rounded-2xl focus:ring-4 focus:ring-red-500 focus:border-transparent text-lg font-semibold shadow-lg hover:shadow-xl transition-all"
                   value={vitalFilters.shift}
                   onChange={(e) => setVitalFilters(prev => ({...prev, shift: e.target.value}))}
                 >
@@ -761,13 +766,13 @@ const HospitalManagementSystem = () => {
             
             {/* Resumen de filtros activos */}
             {(vitalFilters.dateFrom || vitalFilters.dateTo || vitalFilters.shift !== 'all') && (
-              <div className="mt-3 pt-3 border-t border-red-200">
-                <p className="text-xs text-red-700">
+              <div className="mt-6 pt-6 border-t-2 border-red-300">
+                <p className="text-lg text-red-800 font-medium">
                   <span className="font-bold">Filtros activos:</span>
-                  {vitalFilters.dateFrom && <span className="ml-2">📅 Desde {new Date(vitalFilters.dateFrom).toLocaleDateString('es-ES')}</span>}
-                  {vitalFilters.dateTo && <span className="ml-2">📅 Hasta {new Date(vitalFilters.dateTo).toLocaleDateString('es-ES')}</span>}
+                  {vitalFilters.dateFrom && <span className="ml-3">📅 Desde {new Date(vitalFilters.dateFrom).toLocaleDateString('es-ES')}</span>}
+                  {vitalFilters.dateTo && <span className="ml-3">📅 Hasta {new Date(vitalFilters.dateTo).toLocaleDateString('es-ES')}</span>}
                   {vitalFilters.shift !== 'all' && (
-                    <span className="ml-2">
+                    <span className="ml-3">
                       🕐 {vitalFilters.shift === 'morning' ? 'Turno Mañana' : vitalFilters.shift === 'afternoon' ? 'Turno Tarde' : 'Turno Noche'}
                     </span>
                   )}
@@ -791,88 +796,94 @@ const HospitalManagementSystem = () => {
                 };
                 
                 return (
-                  <div key={vital.id || index} className="border-l-4 border-red-300 bg-red-50 rounded-xl p-4 hover:shadow-md transition-all">
-                    <div className="flex items-center justify-between mb-3">
-                      <div className="flex items-center gap-2 flex-wrap">
-                        <Clock className="text-red-600" size={16} />
-                        <span className="font-bold text-gray-800 text-sm">
-                          📅 {vitalDate.toLocaleDateString('es-ES', { 
-                            day: 'numeric', 
-                            month: 'long', 
-                            year: 'numeric' 
-                          })}
-                        </span>
-                        <span className="text-xs bg-purple-500 text-white px-2 py-0.5 rounded-full font-semibold">
-                          {shiftNames[shift]}
-                        </span>
-                        {isToday && (
-                          <span className="text-xs bg-blue-500 text-white px-2 py-0.5 rounded-full font-semibold">
-                            HOY
+                  <div key={vital.id || index} className="border-l-[8px] border-red-400 bg-gradient-to-br from-red-50 via-pink-50 to-red-50 rounded-2xl p-8 shadow-2xl hover:shadow-3xl hover:scale-[1.02] transition-all duration-300">
+                    <div className="flex items-center justify-between mb-5">
+                      <div className="flex items-center gap-3 flex-wrap">
+                        <div className="bg-red-100 p-3 rounded-xl">
+                          <Clock className="text-red-600" size={28} />
+                        </div>
+                        <div>
+                          <span className="font-bold text-gray-800 text-xl block">
+                            📅 {vitalDate.toLocaleDateString('es-ES', { 
+                              day: 'numeric', 
+                              month: 'long', 
+                              year: 'numeric' 
+                            })}
                           </span>
-                        )}
-                        {isRecent && (
-                          <span className="text-xs bg-green-500 text-white px-2 py-0.5 rounded-full font-semibold">
-                            RECIENTE
-                          </span>
-                        )}
+                          <div className="flex items-center gap-2 mt-1.5">
+                            <span className="text-base bg-gradient-to-r from-purple-500 to-purple-700 text-white px-4 py-1.5 rounded-full font-semibold shadow-lg">
+                              {shiftNames[shift]}
+                            </span>
+                            {isToday && (
+                              <span className="text-base bg-gradient-to-r from-blue-500 to-blue-700 text-white px-4 py-1.5 rounded-full font-semibold shadow-lg">
+                                HOY
+                              </span>
+                            )}
+                            {isRecent && (
+                              <span className="text-base bg-gradient-to-r from-green-500 to-green-700 text-white px-4 py-1.5 rounded-full font-semibold shadow-lg animate-pulse">
+                                RECIENTE
+                              </span>
+                            )}
+                          </div>
+                        </div>
                       </div>
-                      <span className="text-sm font-bold text-red-700">
+                      <span className="text-xl font-bold text-red-700 bg-red-100 px-5 py-3 rounded-2xl">
                         🕐 {vitalDate.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' })}
                       </span>
                     </div>
                     
-                    <div className="grid grid-cols-2 gap-3 mb-3">
-                      <div className="bg-white p-2.5 rounded-lg">
-                        <p className="text-xs text-gray-600 flex items-center gap-1">
-                          🌡️ Temperatura
+                    <div className="grid grid-cols-2 gap-5 mb-5">
+                      <div className="bg-white p-5 rounded-2xl shadow-lg hover:shadow-xl transition-all border-2 border-red-100">
+                        <p className="text-lg text-gray-600 flex items-center gap-2 mb-2">
+                          <span className="text-2xl">🌡️</span> Temperatura
                         </p>
-                        <p className="font-bold text-base text-gray-800">{vital.temperature}°C</p>
+                        <p className="font-bold text-2xl text-gray-800">{vital.temperature}°C</p>
                       </div>
-                      <div className="bg-white p-2.5 rounded-lg">
-                        <p className="text-xs text-gray-600 flex items-center gap-1">
-                          💓 Presión Arterial
+                      <div className="bg-white p-5 rounded-2xl shadow-lg hover:shadow-xl transition-all border-2 border-red-100">
+                        <p className="text-lg text-gray-600 flex items-center gap-2 mb-2">
+                          <span className="text-2xl">💓</span> Presión Arterial
                         </p>
-                        <p className="font-bold text-base text-gray-800">{vital.bloodPressure} mmHg</p>
+                        <p className="font-bold text-2xl text-gray-800">{vital.bloodPressure} mmHg</p>
                       </div>
-                      <div className="bg-white p-2.5 rounded-lg">
-                        <p className="text-xs text-gray-600 flex items-center gap-1">
-                          ❤️ Frec. Cardíaca
+                      <div className="bg-white p-5 rounded-2xl shadow-lg hover:shadow-xl transition-all border-2 border-red-100">
+                        <p className="text-lg text-gray-600 flex items-center gap-2 mb-2">
+                          <span className="text-2xl">❤️</span> Frec. Cardíaca
                         </p>
-                        <p className="font-bold text-base text-gray-800">{vital.heartRate} lpm</p>
+                        <p className="font-bold text-2xl text-gray-800">{vital.heartRate} lpm</p>
                       </div>
-                      <div className="bg-white p-2.5 rounded-lg">
-                        <p className="text-xs text-gray-600 flex items-center gap-1">
-                          🫁 Frec. Respiratoria
+                      <div className="bg-white p-5 rounded-2xl shadow-lg hover:shadow-xl transition-all border-2 border-red-100">
+                        <p className="text-lg text-gray-600 flex items-center gap-2 mb-2">
+                          <span className="text-2xl">🫁</span> Frec. Respiratoria
                         </p>
-                        <p className="font-bold text-base text-gray-800">{vital.respiratoryRate} rpm</p>
+                        <p className="font-bold text-2xl text-gray-800">{vital.respiratoryRate} rpm</p>
                       </div>
                     </div>
                     
-                    <div className="flex items-center justify-between pt-2 border-t border-red-200">
-                      <p className="text-xs text-gray-600">
-                        👨‍⚕️ <span className="font-semibold">{vital.registeredBy}</span>
+                    <div className="flex items-center justify-between pt-4 border-t-2 border-red-200">
+                      <p className="text-lg text-gray-600">
+                        👨‍⚕️ <span className="font-semibold text-gray-800">{vital.registeredBy}</span>
                       </p>
-                      <p className="text-xs text-gray-400">#{vital.id}</p>
+                      <p className="text-base text-gray-400 font-mono">#{vital.id}</p>
                     </div>
                   </div>
                 );
               })}
             </div>
           ) : (
-            <div className="text-center py-8 text-gray-500">
-              <Activity className="mx-auto mb-3 text-gray-400" size={48} />
+            <div className="text-center py-12 text-gray-500">
+              <Activity className="mx-auto mb-4 text-gray-400" size={64} />
               {patientVitals.length === 0 ? (
                 <>
-                  <p className="text-sm">No hay signos vitales registrados</p>
-                  <p className="text-xs mt-2">Los registros de signos vitales aparecerán aquí</p>
+                  <p className="text-xl font-medium">No hay signos vitales registrados</p>
+                  <p className="text-base mt-3">Los registros de signos vitales aparecerán aquí</p>
                 </>
               ) : (
                 <>
-                  <p className="text-sm">No hay registros que coincidan con los filtros</p>
-                  <p className="text-xs mt-2">Intenta ajustar los criterios de búsqueda</p>
+                  <p className="text-xl font-medium">No hay registros que coincidan con los filtros</p>
+                  <p className="text-base mt-3">Intenta ajustar los criterios de búsqueda</p>
                   <button
                     onClick={clearVitalFilters}
-                    className="mt-3 px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-all text-sm font-semibold"
+                    className="mt-5 px-6 py-3 bg-gradient-to-r from-red-500 to-red-700 text-white rounded-2xl hover:shadow-xl transition-all text-lg font-semibold"
                   >
                     🔄 Restablecer filtros
                   </button>
@@ -882,14 +893,16 @@ const HospitalManagementSystem = () => {
           )}
         </div>
 
-        <div className="bg-white p-4 md:p-6 rounded-lg shadow-md">
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="text-lg md:text-xl font-bold flex items-center">
-              <FileText className="mr-2 text-blue-600" size={20} />
+        <div className="bg-white p-6 md:p-8 rounded-2xl shadow-2xl border-2 border-blue-100">
+          <div className="flex items-center justify-between mb-6">
+            <h3 className="text-2xl md:text-3xl font-bold flex items-center gap-3">
+              <div className="bg-blue-100 p-3 rounded-xl">
+                <FileText className="text-blue-600" size={32} />
+              </div>
               Historial de Notas Evolutivas
             </h3>
             <div className="flex items-center gap-2">
-              <span className="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-xs font-semibold">
+              <span className="px-6 py-3 bg-gradient-to-r from-blue-500 to-blue-700 text-white rounded-2xl text-lg font-semibold shadow-lg">
                 {patientNotes.length} {patientNotes.length === 1 ? 'nota' : 'notas'}
               </span>
             </div>
@@ -926,23 +939,32 @@ const HospitalManagementSystem = () => {
                 return (
                   <div 
                     key={note.id || index} 
-                    className={`border-l-4 ${noteTypeColors[note.noteType || 'evolutiva'] || 'border-blue-200 bg-blue-50'} p-4 rounded-xl hover:shadow-md transition-all`}
+                    className={`border-l-[8px] ${noteTypeColors[note.noteType || 'evolutiva'] || 'border-blue-200 bg-blue-50'} p-8 rounded-2xl shadow-2xl hover:shadow-3xl hover:scale-[1.02] transition-all duration-300`}
+                    style={{
+                      background: note.noteType === 'evolutiva' ? 'linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%)' :
+                                note.noteType === 'observacion' ? 'linear-gradient(135deg, #faf5ff 0%, #f3e8ff 100%)' :
+                                note.noteType === 'incidente' ? 'linear-gradient(135deg, #fff7ed 0%, #ffedd5 100%)' :
+                                note.noteType === 'mejora' ? 'linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%)' :
+                                note.noteType === 'deterioro' ? 'linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%)' : 'linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%)'
+                    }}
                   >
-                    <div className="flex items-start justify-between mb-2">
-                      <div className="flex items-center gap-2">
-                        <span className="text-2xl">{noteTypeIcons[note.noteType || 'evolutiva'] || '📋'}</span>
+                    <div className="flex items-start justify-between mb-4">
+                      <div className="flex items-center gap-4">
+                        <div className="bg-white/80 p-4 rounded-2xl shadow-lg">
+                          <span className="text-4xl">{noteTypeIcons[note.noteType || 'evolutiva'] || '📋'}</span>
+                        </div>
                         <div>
-                          <div className="flex items-center gap-2">
-                            <span className="font-bold text-gray-800 text-sm">
+                          <div className="flex items-center gap-3 mb-2">
+                            <span className="font-bold text-gray-800 text-2xl">
                               {noteTypeNames[note.noteType || 'evolutiva'] || 'Nota Evolutiva'}
                             </span>
                             {isRecent && (
-                              <span className="text-xs bg-green-500 text-white px-2 py-0.5 rounded-full font-semibold">
+                              <span className="text-base bg-gradient-to-r from-green-500 to-green-700 text-white px-5 py-2 rounded-full font-semibold shadow-lg animate-pulse">
                                 RECIENTE
                               </span>
                             )}
                           </div>
-                          <p className="text-xs text-gray-500">
+                          <p className="text-base text-gray-600 font-medium">
                             📅 {noteDate.toLocaleDateString('es-ES', { 
                               day: 'numeric', 
                               month: 'long', 
@@ -955,15 +977,15 @@ const HospitalManagementSystem = () => {
                       </div>
                     </div>
                     
-                    <p className="text-sm text-gray-700 leading-relaxed mb-2 pl-8 whitespace-pre-wrap">
+                    <p className="text-xl text-gray-700 leading-relaxed mb-4 pl-4 whitespace-pre-wrap font-medium">
                       {note.note}
                     </p>
                     
-                    <div className="flex items-center justify-between pl-8 pt-2 border-t border-gray-200">
-                      <p className="text-xs text-gray-500">
-                        👨‍⚕️ <span className="font-semibold">{note.nurseName}</span>
+                    <div className="flex items-center justify-between pl-4 pt-4 border-t-2 border-gray-200">
+                      <p className="text-lg text-gray-600">
+                        👨‍⚕️ <span className="font-semibold text-gray-800">{note.nurseName}</span>
                       </p>
-                      <p className="text-xs text-gray-400">
+                      <p className="text-base text-gray-400 font-mono">
                         #{note.id}
                       </p>
                     </div>
@@ -972,34 +994,34 @@ const HospitalManagementSystem = () => {
               })}
             </div>
           ) : (
-            <div className="text-center py-8 text-gray-500">
-              <FileText className="mx-auto mb-3 text-gray-400" size={48} />
-              <p className="text-sm">No hay notas evolutivas registradas para este paciente</p>
-              <p className="text-xs mt-2">Las notas de enfermería aparecerán aquí cuando se registren</p>
+            <div className="text-center py-12 text-gray-500">
+              <FileText className="mx-auto mb-4 text-gray-400" size={64} />
+              <p className="text-xl font-medium">No hay notas evolutivas registradas para este paciente</p>
+              <p className="text-base mt-3">Las notas de enfermería aparecerán aquí cuando se registren</p>
             </div>
           )}
           
           {/* Resumen por tipo de nota */}
           {patientNotes.length > 0 && (
-            <div className="mt-4 pt-4 border-t border-gray-200">
-              <p className="text-xs font-semibold text-gray-600 mb-2">Resumen por tipo:</p>
-              <div className="flex flex-wrap gap-2">
+            <div className="mt-6 pt-6 border-t-2 border-gray-200">
+              <p className="text-lg font-semibold text-gray-700 mb-4">Resumen por tipo:</p>
+              <div className="flex flex-wrap gap-3">
                 {['evolutiva', 'observacion', 'incidente', 'mejora', 'deterioro'].map(type => {
                   const count = patientNotes.filter(n => (n.noteType || 'evolutiva') === type).length;
                   if (count === 0) return null;
                   
                   const typeInfo = {
-                    'evolutiva': { icon: '📋', color: 'bg-blue-100 text-blue-700', name: 'Evolutivas' },
-                    'observacion': { icon: '👁️', color: 'bg-purple-100 text-purple-700', name: 'Observaciones' },
-                    'incidente': { icon: '⚠️', color: 'bg-orange-100 text-orange-700', name: 'Incidentes' },
-                    'mejora': { icon: '✅', color: 'bg-green-100 text-green-700', name: 'Mejorías' },
-                    'deterioro': { icon: '🔴', color: 'bg-red-100 text-red-700', name: 'Deterioros' }
+                    'evolutiva': { icon: '📋', color: 'bg-gradient-to-r from-blue-500 to-blue-700 text-white', name: 'Evolutivas' },
+                    'observacion': { icon: '👁️', color: 'bg-gradient-to-r from-purple-500 to-purple-700 text-white', name: 'Observaciones' },
+                    'incidente': { icon: '⚠️', color: 'bg-gradient-to-r from-orange-500 to-orange-700 text-white', name: 'Incidentes' },
+                    'mejora': { icon: '✅', color: 'bg-gradient-to-r from-green-500 to-green-700 text-white', name: 'Mejorías' },
+                    'deterioro': { icon: '🔴', color: 'bg-gradient-to-r from-red-500 to-red-700 text-white', name: 'Deterioros' }
                   };
                   
                   return (
                     <span 
                       key={type}
-                      className={`px-3 py-1 rounded-full text-xs font-semibold ${typeInfo[type].color}`}
+                      className={`px-5 py-2.5 rounded-2xl text-base font-semibold shadow-lg ${typeInfo[type].color}`}
                     >
                       {typeInfo[type].icon} {count} {typeInfo[type].name}
                     </span>
@@ -1010,13 +1032,15 @@ const HospitalManagementSystem = () => {
           )}
         </div>
 
-        <div className="bg-white p-4 md:p-6 rounded-lg shadow-md">
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="text-lg md:text-xl font-bold flex items-center">
-              <Pill className="mr-2 text-green-600" size={20} />
+        <div className="bg-white p-6 md:p-8 rounded-2xl shadow-2xl border-2 border-green-100">
+          <div className="flex items-center justify-between mb-6">
+            <h3 className="text-2xl md:text-3xl font-bold flex items-center gap-3">
+              <div className="bg-green-100 p-3 rounded-xl">
+                <Pill className="text-green-600" size={32} />
+              </div>
               Tratamientos Asignados
             </h3>
-            <span className="px-3 py-1 bg-green-100 text-green-700 rounded-full text-xs font-semibold">
+            <span className="px-6 py-3 bg-gradient-to-r from-green-500 to-green-700 text-white rounded-2xl text-lg font-semibold shadow-lg">
               {patientTreatments.length} {patientTreatments.length === 1 ? 'tratamiento' : 'tratamientos'}
             </span>
           </div>
@@ -1028,59 +1052,59 @@ const HospitalManagementSystem = () => {
                 const administrationTimes = trt.administrationTimes ? trt.administrationTimes.split(',') : [];
                 
                 return (
-                  <div key={trt.id} className="border-l-4 border-green-400 bg-green-50 rounded-xl p-4 hover:shadow-md transition-all">
+                  <div key={trt.id} className="border-l-[8px] border-green-500 bg-gradient-to-br from-green-50 via-emerald-50 to-green-50 rounded-2xl p-8 shadow-2xl hover:shadow-3xl hover:scale-[1.02] transition-all duration-300">
                     {/* Encabezado del tratamiento */}
-                    <div className="flex items-start justify-between mb-3">
-                      <div className="flex items-center gap-2">
-                        <div className="bg-green-500 p-2 rounded-lg">
-                          <Pill className="text-white" size={20} />
+                    <div className="flex items-start justify-between mb-5">
+                      <div className="flex items-center gap-4">
+                        <div className="bg-gradient-to-br from-green-500 to-green-700 p-4 rounded-2xl shadow-lg">
+                          <Pill className="text-white" size={32} />
                         </div>
                         <div>
-                          <h4 className="font-bold text-lg text-gray-800">{trt.medication}</h4>
-                          <p className="text-sm text-gray-600">Dosis: <span className="font-semibold text-green-700">{trt.dose}</span></p>
+                          <h4 className="font-bold text-2xl text-gray-800 mb-1">{trt.medication}</h4>
+                          <p className="text-lg text-gray-600">Dosis: <span className="font-semibold text-green-700 text-xl">{trt.dose}</span></p>
                         </div>
                       </div>
-                      <span className={`px-3 py-1 rounded-full text-xs font-bold ${
-                        isActive ? 'bg-green-500 text-white' : 'bg-gray-400 text-white'
+                      <span className={`px-6 py-3 rounded-2xl text-base font-bold shadow-lg ${
+                        isActive ? 'bg-gradient-to-r from-green-500 to-green-700 text-white' : 'bg-gradient-to-r from-gray-400 to-gray-600 text-white'
                       }`}>
                         {trt.status || 'Activo'}
                       </span>
                     </div>
                     
                     {/* Información del tratamiento */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-3">
-                      <div className="bg-white p-3 rounded-lg border border-green-200">
-                        <p className="text-xs text-gray-600 mb-1 flex items-center">
-                          <Clock size={14} className="mr-1 text-green-600" />
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-5 mb-5">
+                      <div className="bg-white p-5 rounded-2xl border-2 border-green-200 shadow-lg hover:shadow-xl transition-all">
+                        <p className="text-lg text-gray-600 mb-2 flex items-center gap-2">
+                          <Clock size={24} className="text-green-600" />
                           Frecuencia
                         </p>
-                        <p className="font-semibold text-sm text-gray-800">{trt.frequency}</p>
+                        <p className="font-semibold text-xl text-gray-800">{trt.frequency}</p>
                       </div>
                       
                       {trt.responsibleDoctor && (
-                        <div className="bg-white p-3 rounded-lg border border-green-200">
-                          <p className="text-xs text-gray-600 mb-1 flex items-center">
-                            <User size={14} className="mr-1 text-green-600" />
+                        <div className="bg-white p-5 rounded-2xl border-2 border-green-200 shadow-lg hover:shadow-xl transition-all">
+                          <p className="text-lg text-gray-600 mb-2 flex items-center gap-2">
+                            <User size={24} className="text-green-600" />
                             Médico Responsable
                           </p>
-                          <p className="font-semibold text-sm text-gray-800">{trt.responsibleDoctor}</p>
+                          <p className="font-semibold text-xl text-gray-800">{trt.responsibleDoctor}</p>
                         </div>
                       )}
                       
-                      <div className="bg-white p-3 rounded-lg border border-green-200">
-                        <p className="text-xs text-gray-600 mb-1 flex items-center">
-                          📅 Fecha de Inicio
+                      <div className="bg-white p-5 rounded-2xl border-2 border-green-200 shadow-lg hover:shadow-xl transition-all">
+                        <p className="text-lg text-gray-600 mb-2 flex items-center gap-2">
+                          <span className="text-2xl">📅</span> Fecha de Inicio
                         </p>
-                        <p className="font-semibold text-sm text-gray-800">
+                        <p className="font-semibold text-xl text-gray-800">
                           {startDate.toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' })}
                         </p>
                       </div>
                       
-                      <div className="bg-white p-3 rounded-lg border border-green-200">
-                        <p className="text-xs text-gray-600 mb-1 flex items-center">
-                          ⏰ Última Aplicación
+                      <div className="bg-white p-5 rounded-2xl border-2 border-green-200 shadow-lg hover:shadow-xl transition-all">
+                        <p className="text-lg text-gray-600 mb-2 flex items-center gap-2">
+                          <span className="text-2xl">⏰</span> Última Aplicación
                         </p>
-                        <p className="font-semibold text-sm text-gray-800">
+                        <p className="font-semibold text-xl text-gray-800">
                           {new Date(trt.lastApplication).toLocaleString('es-ES', { 
                             day: 'numeric', 
                             month: 'short',
@@ -1093,14 +1117,14 @@ const HospitalManagementSystem = () => {
                     
                     {/* Horarios de administración */}
                     {administrationTimes.length > 0 && (
-                      <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-3">
-                        <p className="text-xs font-semibold text-blue-700 mb-2 flex items-center">
-                          <Clock size={14} className="mr-1" />
+                      <div className="bg-gradient-to-br from-blue-50 to-cyan-50 border-2 border-blue-300 rounded-2xl p-5 mb-5 shadow-lg">
+                        <p className="text-lg font-semibold text-blue-700 mb-3 flex items-center gap-2">
+                          <Clock size={24} />
                           Horarios de Administración
                         </p>
-                        <div className="flex flex-wrap gap-2">
+                        <div className="flex flex-wrap gap-3">
                           {administrationTimes.map((time, idx) => (
-                            <span key={idx} className="px-3 py-1 bg-blue-500 text-white rounded-full text-sm font-semibold">
+                            <span key={idx} className="px-5 py-2.5 bg-gradient-to-r from-blue-500 to-blue-700 text-white rounded-2xl text-lg font-semibold shadow-lg">
                               🕐 {time.trim()}
                             </span>
                           ))}
@@ -1110,71 +1134,82 @@ const HospitalManagementSystem = () => {
                     
                     {/* Notas */}
                     {trt.notes && (
-                      <div className="bg-white border border-green-200 rounded-lg p-3 mb-3">
-                        <p className="text-xs font-semibold text-green-700 mb-1">📝 Notas:</p>
-                        <p className="text-sm text-gray-700 italic">{trt.notes}</p>
+                      <div className="bg-white border-2 border-green-300 rounded-2xl p-5 mb-5 shadow-lg">
+                        <p className="text-lg font-semibold text-green-700 mb-2 flex items-center gap-2"><span className="text-2xl">📝</span> Notas:</p>
+                        <p className="text-xl text-gray-700 italic font-medium">{trt.notes}</p>
                       </div>
                     )}
                     
                     {/* Footer */}
-                    <div className="flex items-center justify-between pt-3 border-t border-green-200">
-                      <p className="text-xs text-gray-600">
-                        👨‍⚕️ Aplicado por: <span className="font-semibold">{trt.appliedBy}</span>
+                    <div className="flex items-center justify-between pt-4 border-t-2 border-green-300">
+                      <p className="text-lg text-gray-600">
+                        👨‍⚕️ Aplicado por: <span className="font-semibold text-gray-800">{trt.appliedBy}</span>
                       </p>
-                      <p className="text-xs text-gray-400">#{trt.id}</p>
+                      <p className="text-base text-gray-400 font-mono">#{trt.id}</p>
                     </div>
                   </div>
                 );
               })}
             </div>
           ) : (
-            <div className="text-center py-8 text-gray-500">
-              <Pill className="mx-auto mb-3 text-gray-400" size={48} />
-              <p className="text-sm">No hay tratamientos asignados</p>
-              <p className="text-xs mt-2">Los tratamientos aparecerán aquí cuando sean prescritos</p>
+            <div className="text-center py-12 text-gray-500">
+              <Pill className="mx-auto mb-4 text-gray-400" size={64} />
+              <p className="text-xl font-medium">No hay tratamientos asignados</p>
+              <p className="text-base mt-3">Los tratamientos aparecerán aquí cuando sean prescritos</p>
             </div>
           )}
         </div>
 
-        <div className="bg-white p-4 md:p-6 rounded-lg shadow-md">
-          <h3 className="text-lg md:text-xl font-bold mb-4 flex items-center">
-            <FileText className="mr-2 text-blue-600" size={20} />
+        <div className="bg-white p-6 md:p-8 rounded-2xl shadow-2xl border-2 border-purple-100">
+          <h3 className="text-2xl md:text-3xl font-bold mb-6 flex items-center gap-3">
+            <div className="bg-purple-100 p-3 rounded-xl">
+              <FileText className="text-purple-600" size={32} />
+            </div>
             Historial Médico
           </h3>
           {patientHistory.length > 0 ? (
-            <div className="space-y-3">
+            <div className="space-y-5">
               {patientHistory.map(record => (
-                <div key={record.id} className="border border-gray-200 p-3 md:p-4 rounded-lg">
-                  <p className="font-semibold text-sm md:text-base text-gray-800">{record.diagnosis}</p>
-                  <p className="text-xs md:text-sm text-gray-600 mt-1">Fecha: {record.date}</p>
-                  <p className="text-xs md:text-sm text-gray-600">Médico: {record.doctor}</p>
-                  <p className="text-xs md:text-sm text-gray-600">Tratamiento: {record.treatment}</p>
-                  <p className="text-xs md:text-sm text-gray-500 mt-2">{record.notes}</p>
+                <div key={record.id} className="border-l-[8px] border-purple-400 bg-gradient-to-br from-purple-50 via-pink-50 to-purple-50 p-6 md:p-8 rounded-2xl shadow-xl hover:shadow-2xl hover:scale-[1.01] transition-all duration-300">
+                  <p className="font-bold text-xl md:text-2xl text-gray-800 mb-3">{record.diagnosis}</p>
+                  <div className="space-y-2">
+                    <p className="text-base md:text-lg text-gray-700"><span className="font-semibold">📅 Fecha:</span> {record.date}</p>
+                    <p className="text-base md:text-lg text-gray-700"><span className="font-semibold">👨‍⚕️ Médico:</span> {record.doctor}</p>
+                    <p className="text-base md:text-lg text-gray-700"><span className="font-semibold">💊 Tratamiento:</span> {record.treatment}</p>
+                  </div>
+                  <p className="text-lg md:text-xl text-gray-600 mt-4 pt-4 border-t-2 border-purple-200 font-medium italic">{record.notes}</p>
                 </div>
               ))}
             </div>
           ) : (
-            <p className="text-sm text-gray-500">No hay historial médico registrado</p>
+            <div className="text-center py-12 text-gray-500">
+              <FileText className="mx-auto mb-4 text-gray-400" size={64} />
+              <p className="text-xl font-medium">No hay historial médico registrado</p>
+            </div>
           )}
         </div>
 
-        <div className="bg-white p-4 md:p-6 rounded-lg shadow-md">
-          <h3 className="text-lg md:text-xl font-bold mb-4 flex items-center">
-            <TestTube className="mr-2 text-blue-600" size={20} />
+        <div className="bg-white p-6 md:p-8 rounded-2xl shadow-2xl border-2 border-cyan-100">
+          <h3 className="text-2xl md:text-3xl font-bold mb-6 flex items-center gap-3">
+            <div className="bg-cyan-100 p-3 rounded-xl">
+              <TestTube className="text-cyan-600" size={32} />
+            </div>
             Resultados de Laboratorio
           </h3>
           {patientLabs.length > 0 ? (
-            <div className="space-y-3">
+            <div className="space-y-5">
               {patientLabs.map(test => (
-                <div key={test.id} className="border border-gray-200 p-3 md:p-4 rounded-lg">
-                  <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2">
-                    <div>
-                      <p className="font-semibold text-sm md:text-base text-gray-800">{test.test}</p>
-                      <p className="text-xs md:text-sm text-gray-600">Fecha: {test.date}</p>
-                      <p className="text-xs md:text-sm text-gray-600">Ordenado por: {test.orderedBy}</p>
-                      <p className="text-xs md:text-sm text-gray-600">Resultados: {test.results}</p>
+                <div key={test.id} className="border-l-[8px] border-cyan-400 bg-gradient-to-br from-cyan-50 via-blue-50 to-cyan-50 p-6 md:p-8 rounded-2xl shadow-xl hover:shadow-2xl hover:scale-[1.01] transition-all duration-300">
+                  <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-4">
+                    <div className="flex-1">
+                      <p className="font-bold text-xl md:text-2xl text-gray-800 mb-3">🔬 {test.test}</p>
+                      <div className="space-y-2">
+                        <p className="text-base md:text-lg text-gray-700"><span className="font-semibold">📅 Fecha:</span> {test.date}</p>
+                        <p className="text-base md:text-lg text-gray-700"><span className="font-semibold">👨‍⚕️ Ordenado por:</span> {test.orderedBy}</p>
+                        <p className="text-base md:text-lg text-gray-700 font-medium"><span className="font-semibold">📊 Resultados:</span> {test.results}</p>
+                      </div>
                     </div>
-                    <span className={'px-2 md:px-3 py-1 rounded-full text-xs font-semibold ' + (test.status === 'Completado' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800')}>
+                    <span className={'px-6 py-3 rounded-2xl text-base font-bold shadow-lg ' + (test.status === 'Completado' ? 'bg-gradient-to-r from-green-500 to-green-700 text-white' : 'bg-gradient-to-r from-yellow-500 to-yellow-700 text-white')}>
                       {test.status}
                     </span>
                   </div>
@@ -1182,26 +1217,33 @@ const HospitalManagementSystem = () => {
               ))}
             </div>
           ) : (
-            <p className="text-sm text-gray-500">No hay resultados de laboratorio</p>
+            <div className="text-center py-12 text-gray-500">
+              <TestTube className="mx-auto mb-4 text-gray-400" size={64} />
+              <p className="text-xl font-medium">No hay resultados de laboratorio</p>
+            </div>
           )}
         </div>
 
-        <div className="bg-white p-4 md:p-6 rounded-lg shadow-md">
-          <h3 className="text-lg md:text-xl font-bold mb-4 flex items-center">
-            <Calendar className="mr-2 text-green-600" size={20} />
+        <div className="bg-white p-6 md:p-8 rounded-2xl shadow-2xl border-2 border-emerald-100">
+          <h3 className="text-2xl md:text-3xl font-bold mb-6 flex items-center gap-3">
+            <div className="bg-emerald-100 p-3 rounded-xl">
+              <Calendar className="text-emerald-600" size={32} />
+            </div>
             Citas Programadas
           </h3>
           {patientAppointments.length > 0 ? (
-            <div className="space-y-3">
+            <div className="space-y-5">
               {patientAppointments.map(apt => (
-                <div key={apt.id} className="border border-gray-200 p-3 md:p-4 rounded-lg">
-                  <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2">
-                    <div>
-                      <p className="font-semibold text-sm md:text-base text-gray-800">{apt.type}</p>
-                      <p className="text-xs md:text-sm text-gray-600">{apt.date} a las {apt.time}</p>
-                      <p className="text-xs md:text-sm text-gray-600">Médico: {apt.doctor}</p>
+                <div key={apt.id} className="border-l-[8px] border-emerald-400 bg-gradient-to-br from-emerald-50 via-green-50 to-emerald-50 p-6 md:p-8 rounded-2xl shadow-xl hover:shadow-2xl hover:scale-[1.01] transition-all duration-300">
+                  <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-4">
+                    <div className="flex-1">
+                      <p className="font-bold text-xl md:text-2xl text-gray-800 mb-3">📅 {apt.type}</p>
+                      <div className="space-y-2">
+                        <p className="text-base md:text-lg text-gray-700"><span className="font-semibold">🕐 Fecha:</span> {apt.date} a las {apt.time}</p>
+                        <p className="text-base md:text-lg text-gray-700"><span className="font-semibold">👨‍⚕️ Médico:</span> {apt.doctor}</p>
+                      </div>
                     </div>
-                    <span className={'px-2 md:px-3 py-1 rounded-full text-xs font-semibold ' + (apt.status === 'Confirmada' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800')}>
+                    <span className={'px-6 py-3 rounded-2xl text-base font-bold shadow-lg ' + (apt.status === 'Confirmada' ? 'bg-gradient-to-r from-green-500 to-green-700 text-white' : 'bg-gradient-to-r from-yellow-500 to-yellow-700 text-white')}>
                       {apt.status}
                     </span>
                   </div>
@@ -1209,7 +1251,10 @@ const HospitalManagementSystem = () => {
               ))}
             </div>
           ) : (
-            <p className="text-gray-500">No hay citas programadas</p>
+            <div className="text-center py-12 text-gray-500">
+              <Calendar className="mx-auto mb-4 text-gray-400" size={64} />
+              <p className="text-xl font-medium">No hay citas programadas</p>
+            </div>
           )}
         </div>
       </div>
@@ -1377,6 +1422,7 @@ const HospitalManagementSystem = () => {
     const [nurseShifts, setNurseShifts] = useState([]);
     const [currentShift, setCurrentShift] = useState(null);
     const [loadingAssignments, setLoadingAssignments] = useState(true);
+    const [activeFormTab, setActiveFormTab] = useState('vitals'); // 'vitals', 'medication', 'notes'
 
     // Load assigned patients and shifts
     useEffect(() => {
@@ -1437,203 +1483,580 @@ const HospitalManagementSystem = () => {
     }
 
     return (
-    <div className="space-y-6 page-transition">
-      {/* Current Shift Info */}
-      {currentShift && (
-        <div className="glass-effect p-6 rounded-2xl shadow-lg border-l-4 border-green-500 bg-gradient-to-r from-green-50 to-emerald-50">
-          <div className="flex items-center justify-between">
-            <div>
-              <h3 className="text-lg font-bold text-gray-800 flex items-center gap-2">
-                <Clock className="text-green-600" size={24} />
-                Turno Actual Activo
-              </h3>
-              <p className="text-gray-600 mt-1">
-                🕐 {currentShift.start_time} - {currentShift.end_time} • 
-                <span className="ml-2 font-semibold">{currentShift.shift_type}</span> • 
-                <span className="ml-2">{currentShift.department}</span>
-              </p>
-              <p className="text-sm text-gray-500 mt-1">
-                {assignedPatients.length} paciente(s) asignado(s)
-              </p>
-            </div>
-            <div className="px-4 py-2 bg-green-500 text-white rounded-xl font-bold text-sm animate-pulse">
-              EN TURNO
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Stats Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
-        <div className="glass-effect p-6 rounded-2xl card-hover border-l-4 border-blue-500 shadow-lg">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-gray-600 text-sm font-medium">Mis Pacientes Asignados</p>
-              <p className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-blue-600 to-blue-400 bg-clip-text text-transparent">
-                {assignedPatients.length}
-              </p>
-            </div>
-            <div className="relative">
-              <div className="absolute inset-0 bg-blue-500 rounded-full blur-lg opacity-30"></div>
-              <Users className="text-blue-600 relative" size={40} />
-            </div>
-          </div>
-        </div>
-        
-        <div className="glass-effect p-6 rounded-2xl card-hover border-l-4 border-green-500 shadow-lg">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-gray-600 text-sm font-medium">Citas Hoy</p>
-              <p className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-green-600 to-emerald-400 bg-clip-text text-transparent">
-                {appointments.filter(a => a.date === '2025-10-30').length}
-              </p>
-            </div>
-            <div className="relative">
-              <div className="absolute inset-0 bg-green-500 rounded-full blur-lg opacity-30"></div>
-              <Calendar className="text-green-600 relative" size={40} />
-            </div>
-          </div>
-        </div>
-        
-        <div className="glass-effect p-6 rounded-2xl card-hover border-l-4 border-yellow-500 shadow-lg">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-gray-600 text-sm font-medium">Tratamientos Activos</p>
-              <p className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-yellow-600 to-orange-400 bg-clip-text text-transparent">
-                {treatments.length}
-              </p>
-            </div>
-            <div className="relative">
-              <div className="absolute inset-0 bg-yellow-500 rounded-full blur-lg opacity-30"></div>
-              <Pill className="text-yellow-600 relative" size={40} />
-            </div>
-          </div>
-        </div>
-        
-        <div className="glass-effect p-6 rounded-2xl card-hover border-l-4 border-red-500 shadow-lg">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-gray-600 text-sm font-medium">Triaje Rojo (Nivel 1-2)</p>
-              <p className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-red-600 to-pink-400 bg-clip-text text-transparent">
-                {assignedPatients.filter(p => (p.triage_level || 3) <= 2).length}
-              </p>
-              <p className="text-xs text-gray-500 mt-1">Atención inmediata</p>
-            </div>
-            <div className="relative">
-              <div className="absolute inset-0 bg-red-500 rounded-full blur-lg opacity-30 animate-pulse"></div>
-              <AlertCircle className="text-red-600 relative" size={40} />
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Triage Overview */}
-      <div className="glass-effect p-6 rounded-2xl shadow-lg border border-gray-200/50">
-        <h3 className="text-xl font-bold mb-5 flex items-center bg-gradient-to-r from-red-600 to-orange-600 bg-clip-text text-transparent">
-          <AlertCircle className="mr-2 text-red-600" size={24} />
-          Estado de Triaje - Mis Pacientes
-        </h3>
-        <div className="grid grid-cols-1 md:grid-cols-5 gap-3">
-          {[1, 2, 3, 4, 5].map(level => {
-            const triageInfo = getTriageInfo(level);
-            const count = assignedPatients.filter(p => (p.triage_level || 3) === level).length;
-            return (
-              <div 
-                key={level}
-                className={`${triageInfo.bgLight} border-2 ${triageInfo.borderColor} rounded-xl p-4 text-center transition-all hover:shadow-lg ${count > 0 ? 'cursor-pointer hover:scale-105' : 'opacity-60'}`}
-              >
-                <div className="text-4xl mb-2 ${level === 1 || level === 2 ? 'animate-pulse' : ''}">{triageInfo.icon}</div>
-                <div className={`text-3xl font-bold ${triageInfo.textColor} mb-1`}>{count}</div>
-                <div className={`text-xs font-semibold ${triageInfo.textColor} uppercase mb-1`}>
-                  Nivel {level}
+    <div className="space-y-4 page-transition">
+      {/* Welcome Banner with Shift Info */}
+      <div className="relative overflow-hidden rounded-2xl shadow-2xl">
+        <div className="absolute inset-0 bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-500"></div>
+        <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiNmZmZmZmYiIGZpbGwtb3BhY2l0eT0iMC4xIj48cGF0aCBkPSJNMzYgMzRjMC0yLjIxLTEuNzktNC00LTRzLTQgMS43OS00IDQgMS43OSA0IDQgNCA0LTEuNzkgNC00em0wLTEyYzAtMi4yMS0xLjc5LTQtNC00cy00IDEuNzktNCA0IDEuNzkgNCA0IDQgNC0xLjc5IDQtNHptMC0xMmMwLTIuMjEtMS43OS00LTQtNHMtNCAxLjc5LTQgNCAxLjc5IDQgNCA0IDQtMS43OSA0LTR6Ii8+PC9nPjwvZz48L3N2Zz4=')] opacity-20"></div>
+        <div className="relative p-6">
+          <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+            <div className="flex-1">
+              <h2 className="text-4xl md:text-5xl font-bold text-white mb-3 flex items-center gap-4">
+                <div className="bg-white/20 p-4 rounded-2xl backdrop-blur-sm text-3xl">
+                  💉
                 </div>
-                <div className="text-xs text-gray-600 font-medium">{triageInfo.priority}</div>
+                ¡Bienvenida, {currentUser?.name}!
+              </h2>
+              <p className="text-white/90 text-xl mb-4">
+                {currentShift ? (
+                  <>Estás actualmente en turno de <span className="font-semibold">{currentShift.shift_type}</span> en {currentShift.department}</>
+                ) : (
+                  'Esperando asignación de turno'
+                )}
+              </p>
+              <div className="flex flex-wrap gap-4">
+                {currentShift && (
+                  <>
+                    <div className="bg-white/20 backdrop-blur-md px-6 py-3 rounded-xl flex items-center gap-3">
+                      <Clock className="text-white" size={24} />
+                      <span className="text-white font-medium text-lg">{currentShift.start_time} - {currentShift.end_time}</span>
+                    </div>
+                    <div className="bg-white/20 backdrop-blur-md px-6 py-3 rounded-xl flex items-center gap-3">
+                      <Users className="text-white" size={24} />
+                      <span className="text-white font-medium text-lg">{assignedPatients.length} pacientes asignados</span>
+                    </div>
+                  </>
+                )}
+                <div className="bg-gradient-to-r from-green-400 to-emerald-400 px-6 py-3 rounded-xl flex items-center gap-3 shadow-lg">
+                  <div className="w-3 h-3 bg-white rounded-full animate-pulse"></div>
+                  <span className="text-white font-bold text-lg">ACTIVA</span>
+                </div>
               </div>
-            );
-          })}
-        </div>
-        <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
-          <p className="text-sm text-gray-700">
-            <span className="font-bold">ℹ️ Sistema de Triaje:</span> 
-            <span className="ml-2">1=Resucitación • 2=Emergencia • 3=Urgente • 4=Menos Urgente • 5=No Urgente</span>
-          </p>
+            </div>
+            <div className="bg-white/10 backdrop-blur-md p-6 rounded-2xl border border-white/20">
+              <div className="text-center">
+                <p className="text-white/80 text-sm mb-2">Hora actual</p>
+                <p className="text-white text-4xl font-bold">{new Date().toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' })}</p>
+                <p className="text-white/80 text-sm mt-2">{new Date().toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'long' })}</p>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 
-      {/* My Shift Schedule */}
-      <div className="glass-effect p-6 rounded-2xl shadow-lg border border-gray-200/50">
-        <h3 className="text-xl font-bold mb-5 flex items-center bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
-          <Clock className="mr-2 text-indigo-600" size={24} />
-          Mi Jornada Laboral y Turnos
-        </h3>
-        {nurseShifts.length > 0 ? (
-          <div className="overflow-x-auto">
-            <table className="w-full min-w-[700px]">
-              <thead>
-                <tr className="bg-gradient-to-r from-indigo-50 to-purple-50 border-b-2 border-indigo-200">
-                  <th className="px-4 py-3 text-left text-sm font-bold text-gray-700">Fecha</th>
-                  <th className="px-4 py-3 text-left text-sm font-bold text-gray-700">Horario</th>
-                  <th className="px-4 py-3 text-left text-sm font-bold text-gray-700">Tipo de Turno</th>
-                  <th className="px-4 py-3 text-left text-sm font-bold text-gray-700">Departamento</th>
-                  <th className="px-4 py-3 text-left text-sm font-bold text-gray-700">Pacientes Asignados</th>
-                  <th className="px-4 py-3 text-left text-sm font-bold text-gray-700">Estado</th>
-                </tr>
-              </thead>
-              <tbody>
-                {nurseShifts.map(shift => {
-                  const isToday = shift.date === new Date().toISOString().split('T')[0];
-                  return (
-                    <tr key={shift.id} className={`border-b border-gray-100 hover:bg-indigo-50/50 transition-colors ${isToday ? 'bg-green-50' : ''}`}>
-                      <td className="px-4 py-3 text-sm font-medium text-gray-800">
-                        📅 {new Date(shift.date).toLocaleDateString('es-ES', { weekday: 'short', day: 'numeric', month: 'short' })}
-                        {isToday && <span className="ml-2 text-xs bg-green-500 text-white px-2 py-1 rounded-full">HOY</span>}
-                      </td>
-                      <td className="px-4 py-3 text-sm text-gray-600">🕐 {shift.start_time} - {shift.end_time}</td>
-                      <td className="px-4 py-3 text-sm text-gray-600">
-                        <span className={`px-2 py-1 rounded-full text-xs font-semibold ${
-                          shift.shift_type === 'Mañana' ? 'bg-yellow-100 text-yellow-800' :
-                          shift.shift_type === 'Tarde' ? 'bg-orange-100 text-orange-800' :
-                          'bg-indigo-100 text-indigo-800'
-                        }`}>
-                          {shift.shift_type}
-                        </span>
-                      </td>
-                      <td className="px-4 py-3 text-sm text-gray-600">{shift.department}</td>
-                      <td className="px-4 py-3 text-sm text-gray-600">
-                        <span className="font-bold text-blue-600">{shift.assigned_patients_count || 0}</span> pacientes
-                      </td>
-                      <td className="px-4 py-3">
-                        <span className={`status-badge ${
-                          shift.status === 'Scheduled' ? 'bg-gradient-to-r from-blue-500 to-cyan-500 text-white' :
-                          shift.status === 'Completed' ? 'bg-gradient-to-r from-green-500 to-emerald-500 text-white' :
-                          'bg-gradient-to-r from-gray-400 to-gray-500 text-white'
-                        }`}>
-                          {shift.status === 'Scheduled' ? 'Programado' : shift.status === 'Completed' ? 'Completado' : shift.status}
-                        </span>
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
+      {/* Quick Stats Cards - Modern Design */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 md:gap-6">
+        <div className="group relative overflow-hidden rounded-2xl bg-gradient-to-br from-blue-500 to-blue-600 p-7 shadow-xl hover:shadow-2xl transition-all duration-300 hover:-translate-y-1">
+          <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -mr-16 -mt-16"></div>
+          <div className="relative">
+            <div className="flex items-center justify-between mb-4">
+              <div className="bg-white/20 p-4 rounded-xl backdrop-blur-sm">
+                <Users className="text-white" size={36} />
+              </div>
+              <div className="text-right">
+                <p className="text-white/90 text-base font-medium">Mis Pacientes</p>
+                <p className="text-white text-5xl font-bold">{assignedPatients.length}</p>
+              </div>
+            </div>
+            <div className="bg-white/20 backdrop-blur-sm rounded-lg px-4 py-2.5">
+              <p className="text-white/90 text-sm font-medium">Asignados hoy</p>
+            </div>
+          </div>
+        </div>
+        
+        <div className="group relative overflow-hidden rounded-2xl bg-gradient-to-br from-green-500 to-emerald-600 p-7 shadow-xl hover:shadow-2xl transition-all duration-300 hover:-translate-y-1">
+          <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -mr-16 -mt-16"></div>
+          <div className="relative">
+            <div className="flex items-center justify-between mb-4">
+              <div className="bg-white/20 p-4 rounded-xl backdrop-blur-sm">
+                <Pill className="text-white" size={36} />
+              </div>
+              <div className="text-right">
+                <p className="text-white/90 text-base font-medium">Medicamentos Hoy</p>
+                <p className="text-white text-5xl font-bold">
+                  {treatments.filter(treatment => {
+                    const treatmentDate = new Date(treatment.lastApplication);
+                    const today = new Date();
+                    return treatmentDate.toDateString() === today.toDateString();
+                  }).length}
+                </p>
+              </div>
+            </div>
+            <div className="bg-white/20 backdrop-blur-sm rounded-lg px-4 py-2.5">
+              <p className="text-white/90 text-sm font-medium">Administrados en este turno</p>
+            </div>
+          </div>
+        </div>
+        
+        <div className="group relative overflow-hidden rounded-2xl bg-gradient-to-br from-purple-500 to-purple-600 p-7 shadow-xl hover:shadow-2xl transition-all duration-300 hover:-translate-y-1">
+          <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -mr-16 -mt-16"></div>
+          <div className="relative">
+            <div className="flex items-center justify-between mb-4">
+              <div className="bg-white/20 p-4 rounded-xl backdrop-blur-sm">
+                <Activity className="text-white" size={36} />
+              </div>
+              <div className="text-right">
+                <p className="text-white/90 text-base font-medium">Signos Vitales</p>
+                <p className="text-white text-5xl font-bold">
+                  {vitalSigns.filter(vital => {
+                    const vitalDate = new Date(vital.date);
+                    const today = new Date();
+                    return vitalDate.toDateString() === today.toDateString();
+                  }).length}
+                </p>
+              </div>
+            </div>
+            <div className="bg-white/20 backdrop-blur-sm rounded-lg px-4 py-2.5">
+              <p className="text-white/90 text-sm font-medium">Registrados hoy</p>
+            </div>
+          </div>
+        </div>
+        
+        <div className="group relative overflow-hidden rounded-2xl bg-gradient-to-br from-pink-500 to-rose-600 p-7 shadow-xl hover:shadow-2xl transition-all duration-300 hover:-translate-y-1">
+          <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -mr-16 -mt-16"></div>
+          <div className="relative">
+            <div className="flex items-center justify-between mb-4">
+              <div className="bg-white/20 p-4 rounded-xl backdrop-blur-sm">
+                <FileText className="text-white" size={36} />
+              </div>
+              <div className="text-right">
+                <p className="text-white/90 text-base font-medium">Notas de Enfermería</p>
+                <p className="text-white text-5xl font-bold">{nurseNotes.length}</p>
+              </div>
+            </div>
+            <div className="bg-white/20 backdrop-blur-sm rounded-lg px-4 py-2.5">
+              <p className="text-white/90 text-sm font-medium">Total registradas</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Assigned Patients Section - Enhanced Design */}
+      <div className="bg-white rounded-2xl shadow-xl p-8 border border-gray-100">
+        <div className="flex items-center justify-between mb-6">
+          <h3 className="text-3xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent flex items-center gap-3">
+            <div className="bg-gradient-to-br from-indigo-500 to-purple-500 p-4 rounded-xl text-white shadow-lg">
+              <UserCheck size={32} />
+            </div>
+            Pacientes Asignados a Mi Turno
+          </h3>
+          <span className="px-6 py-3 bg-gradient-to-r from-indigo-100 to-purple-100 text-indigo-700 rounded-full text-base font-bold flex items-center gap-2">
+            <div className="w-3 h-3 bg-indigo-600 rounded-full animate-pulse"></div>
+            {assignedPatients.length} activos
+          </span>
+        </div>
+        
+        {assignedPatients.length > 0 ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            {assignedPatients.map(patient => {
+              const triageInfo = getTriageInfo(patient.triage_level || 3);
+              const patientTreatments = treatments.filter(t => t.patientId === patient.id);
+              const patientVitals = vitalSigns.filter(v => v.patientId === patient.id).sort((a, b) => new Date(b.date) - new Date(a.date))[0];
+              
+              return (
+                <div key={patient.id} className="group relative bg-gradient-to-br from-gray-50 to-white rounded-xl p-6 border-2 border-gray-200 hover:border-indigo-300 shadow-lg hover:shadow-2xl transition-all duration-300 hover:-translate-y-1">
+                  <div className="absolute top-5 right-5">
+                    <div className={`${triageInfo.color} w-14 h-14 rounded-full flex items-center justify-center text-white text-2xl font-bold shadow-lg`}>
+                      {triageInfo.icon}
+                    </div>
+                  </div>
+                  
+                  <div className="mb-4">
+                    <h4 className="text-2xl font-bold text-gray-800 mb-2">{patient.name}</h4>
+                    <p className="text-base text-gray-600 flex items-center gap-2">
+                      <span className="bg-indigo-100 text-indigo-700 px-3 py-1.5 rounded-md font-medium text-sm">Hab. {patient.room}</span>
+                      <span className="text-gray-400">•</span>
+                      <span>{patient.age} años</span>
+                    </p>
+                  </div>
+                  
+                  <div className="space-y-3 mb-4">
+                    <div className="flex items-center gap-3 text-base">
+                      <div className="bg-blue-100 p-2.5 rounded-lg">
+                        <Heart className="text-blue-600" size={20} />
+                      </div>
+                      <div className="flex-1">
+                        <p className="text-gray-600 text-sm">Diagnóstico</p>
+                        <p className="font-semibold text-gray-800 text-base">{patient.diagnosis}</p>
+                      </div>
+                    </div>
+                    
+                    {patientVitals && (
+                      <div className="grid grid-cols-2 gap-3">
+                        <div className="bg-red-50 rounded-lg p-3">
+                          <p className="text-sm text-red-600 mb-1">Temp</p>
+                          <p className="font-bold text-red-700 text-lg">{patientVitals.temperature}°C</p>
+                        </div>
+                        <div className="bg-pink-50 rounded-lg p-3">
+                          <p className="text-sm text-pink-600 mb-1">Presión</p>
+                          <p className="font-bold text-pink-700 text-lg">{patientVitals.bloodPressure}</p>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                  
+                  <div className="flex items-center justify-between pt-4 border-t border-gray-200">
+                    <div className="flex gap-2">
+                      <div className="bg-green-50 px-4 py-2 rounded-full flex items-center gap-2">
+                        <Pill className="text-green-600" size={18} />
+                        <span className="text-sm font-semibold text-green-700">{patientTreatments.length}</span>
+                      </div>
+                      <div className={`${triageInfo.bgLight} px-4 py-2 rounded-full`}>
+                        <span className={`text-sm font-bold ${triageInfo.textColor}`}>Nv. {patient.triage_level || 3}</span>
+                      </div>
+                    </div>
+                    <button className="bg-gradient-to-r from-indigo-500 to-purple-500 text-white px-5 py-2.5 rounded-xl text-base font-semibold hover:from-indigo-600 hover:to-purple-600 transition-all shadow-md hover:shadow-lg">
+                      Ver Detalles
+                    </button>
+                  </div>
+                </div>
+              );
+            })}
           </div>
         ) : (
-          <div className="text-center py-8 text-gray-500">
-            <Calendar className="mx-auto mb-3 text-gray-400" size={48} />
-            <p>No hay turnos programados para los próximos días</p>
+          <div className="text-center py-16">
+            <div className="bg-gradient-to-br from-gray-100 to-gray-200 w-24 h-24 rounded-full flex items-center justify-center mx-auto mb-4">
+              <UserCheck className="text-gray-400" size={48} />
+            </div>
+            <p className="text-gray-600 font-semibold text-lg">No tienes pacientes asignados en este turno</p>
+            <p className="text-gray-500 text-sm mt-2">Los pacientes aparecerán aquí cuando sean asignados</p>
           </div>
         )}
       </div>
 
+      {/* Triage Overview and Shift Schedule - Side by Side */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div className="glass-effect p-6 rounded-2xl shadow-lg border border-gray-200/50">
-          <h3 className="text-xl font-bold mb-4 flex items-center bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">
-            <Users className="mr-2 text-purple-600" size={24} />
-            Mis Pacientes Asignados
+        {/* Triage Overview */}
+        <div className="bg-white rounded-2xl shadow-xl p-8 border border-gray-100">
+          <h3 className="text-2xl font-bold mb-6 flex items-center gap-3">
+            <div className="bg-gradient-to-br from-red-500 to-orange-500 p-3 rounded-xl text-white shadow-lg">
+              <AlertCircle size={28} />
+            </div>
+            <span className="bg-gradient-to-r from-red-600 to-orange-600 bg-clip-text text-transparent">
+              Estado de Triaje
+            </span>
           </h3>
-          {assignedPatients.length > 0 ? (
-            <div className="space-y-3 max-h-96 overflow-y-auto pr-2">
-              {assignedPatients.map(patient => {
+          <div className="grid grid-cols-5 gap-3">
+            {[1, 2, 3, 4, 5].map(level => {
+              const triageInfo = getTriageInfo(level);
+              const count = assignedPatients.filter(p => (p.triage_level || 3) === level).length;
+              return (
+                <div 
+                  key={level}
+                  className={`${triageInfo.bgLight} border-2 ${triageInfo.borderColor} rounded-xl p-3 text-center transition-all hover:shadow-lg ${count > 0 ? 'cursor-pointer hover:scale-105' : 'opacity-60'}`}
+                >
+                  <div className="text-3xl mb-2 ${level === 1 || level === 2 ? 'animate-pulse' : ''}">{triageInfo.icon}</div>
+                  <div className={`text-2xl font-bold ${triageInfo.textColor} mb-1`}>{count}</div>
+                  <div className={`text-xs font-semibold ${triageInfo.textColor} uppercase mb-1`}>
+                    Nv. {level}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+          <div className="mt-4 bg-gradient-to-r from-blue-50 to-indigo-50 border-2 border-blue-200 rounded-xl p-3">
+            <p className="text-xs text-gray-700">
+              <span className="font-bold text-blue-700 flex items-center gap-2 mb-1">
+                <AlertCircle size={16} />
+                Sistema de Triaje
+              </span> 
+              <span className="block text-gray-600 leading-relaxed">
+                <span className="font-semibold">Nv.1:</span> Inmediato • 
+                <span className="font-semibold">Nv.2:</span> 10min • 
+                <span className="font-semibold">Nv.3:</span> 30min • 
+                <span className="font-semibold">Nv.4:</span> 60min • 
+                <span className="font-semibold">Nv.5:</span> 120min
+              </span>
+            </p>
+          </div>
+        </div>
+
+        {/* My Shift Schedule */}
+        <div className="bg-white rounded-2xl shadow-xl p-6 border border-gray-100">
+          <h3 className="text-2xl font-bold mb-5 flex items-center gap-3">
+            <div className="bg-gradient-to-br from-indigo-500 to-blue-500 p-3 rounded-xl text-white shadow-lg">
+              <Clock size={28} />
+            </div>
+            <span className="bg-gradient-to-r from-indigo-600 to-blue-600 bg-clip-text text-transparent">
+              Mis Turnos
+            </span>
+          </h3>
+          {nurseShifts.length > 0 ? (
+            <div className="space-y-3 max-h-[400px] overflow-y-auto pr-2">
+              {nurseShifts.map(shift => {
+                const isToday = shift.date === new Date().toISOString().split('T')[0];
+                return (
+                  <div key={shift.id} className={`border-2 rounded-xl p-4 transition-all hover:shadow-lg ${isToday ? 'bg-green-50 border-green-300' : 'bg-gray-50 border-gray-200'}`}>
+                    <div className="flex items-center justify-between mb-2">
+                      <div className="flex items-center gap-2">
+                        <span className="text-sm font-bold text-gray-800">
+                          📅 {new Date(shift.date).toLocaleDateString('es-ES', { weekday: 'short', day: 'numeric', month: 'short' })}
+                        </span>
+                        {isToday && <span className="text-xs bg-green-500 text-white px-2 py-1 rounded-full font-bold">HOY</span>}
+                      </div>
+                      <span className={`px-3 py-1 rounded-full text-xs font-semibold ${
+                        shift.shift_type === 'Mañana' ? 'bg-yellow-100 text-yellow-800' :
+                        shift.shift_type === 'Tarde' ? 'bg-orange-100 text-orange-800' :
+                        'bg-indigo-100 text-indigo-800'
+                      }`}>
+                        {shift.shift_type}
+                      </span>
+                    </div>
+                    <div className="flex items-center justify-between text-sm">
+                      <span className="text-gray-600">🕐 {shift.start_time} - {shift.end_time}</span>
+                      <span className="font-bold text-blue-600">{shift.assigned_patients_count || 0} pac.</span>
+                    </div>
+                    <div className="text-xs text-gray-600 mt-1">{shift.department}</div>
+                  </div>
+                );
+              })}
+            </div>
+          ) : (
+            <div className="text-center py-8 text-gray-500">
+              <Calendar className="mx-auto mb-3 text-gray-400" size={40} />
+              <p className="text-sm">No hay turnos programados</p>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Forms Section - Tabs */}
+      <div className="bg-white rounded-2xl shadow-2xl border-2 border-gray-100">
+        {/* Tabs Header */}
+        <div className="flex border-b-2 border-gray-200">
+          <button
+            onClick={() => setActiveFormTab('vitals')}
+            className={`flex-1 py-5 px-6 text-lg font-bold transition-all flex items-center justify-center gap-3 ${
+              activeFormTab === 'vitals'
+                ? 'bg-gradient-to-r from-red-500 to-pink-500 text-white border-b-4 border-red-600 shadow-lg'
+                : 'bg-gray-50 text-gray-600 hover:bg-gray-100'
+            }`}
+          >
+            <Activity size={24} />
+            Signos Vitales
+          </button>
+          <button
+            onClick={() => setActiveFormTab('medication')}
+            className={`flex-1 py-5 px-6 text-lg font-bold transition-all flex items-center justify-center gap-3 ${
+              activeFormTab === 'medication'
+                ? 'bg-gradient-to-r from-green-500 to-emerald-500 text-white border-b-4 border-green-600 shadow-lg'
+                : 'bg-gray-50 text-gray-600 hover:bg-gray-100'
+            }`}
+          >
+            <Pill size={24} />
+            Medicamentos
+          </button>
+          <button
+            onClick={() => setActiveFormTab('notes')}
+            className={`flex-1 py-5 px-6 text-lg font-bold transition-all flex items-center justify-center gap-3 ${
+              activeFormTab === 'notes'
+                ? 'bg-gradient-to-r from-blue-500 to-cyan-500 text-white border-b-4 border-blue-600 shadow-lg'
+                : 'bg-gray-50 text-gray-600 hover:bg-gray-100'
+            }`}
+          >
+            <FileText size={24} />
+            Notas de Enfermería
+          </button>
+        </div>
+
+        {/* Tab Content */}
+        <div className="p-6">
+          {/* Vital Signs Form */}
+          {activeFormTab === 'vitals' && (
+            <div className="space-y-4 animate-fadeIn">
+              <h3 className="text-2xl font-bold mb-4 flex items-center gap-2">
+                <div className="bg-gradient-to-br from-red-500 to-pink-500 p-3 rounded-xl text-white shadow-lg">
+                  <Activity size={24} />
+                </div>
+                <span className="bg-gradient-to-r from-red-600 to-pink-600 bg-clip-text text-transparent text-lg">
+                  Registrar Signos Vitales
+                </span>
+              </h3>
+              <select
+                key="vital-patient-select"
+                className="w-full px-4 py-3 text-base bg-white border-2 border-gray-300 rounded-xl focus:ring-4 focus:ring-purple-500 focus:border-purple-500 transition-all shadow-lg font-semibold"
+                value={newVitalSigns.patientId}
+                onChange={(e) => setNewVitalSigns(prev => ({...prev, patientId: e.target.value}))}
+              >
+                <option value="">🏥 Seleccionar paciente</option>
+                {assignedPatients.map(p => (
+                  <option key={p.id} value={p.id}>{p.name} - Hab. {p.room}</option>
+                ))}
+              </select>
+              
+              <input
+                type="datetime-local"
+                className="w-full px-4 py-3 text-base bg-white border-2 border-gray-300 rounded-xl focus:ring-4 focus:ring-blue-500 focus:border-blue-500 transition-all shadow-lg font-semibold"
+                value={newVitalSigns.dateTime}
+                onChange={(e) => setNewVitalSigns(prev => ({...prev, dateTime: e.target.value}))}
+                max={new Date().toISOString().slice(0, 16)}
+              />
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <input
+                  key="vital-temp"
+                  type="text"
+                  placeholder="🌡️ Temperatura (°C)"
+                  className="w-full px-4 py-3 text-base bg-white border-2 border-gray-300 rounded-xl focus:ring-4 focus:ring-orange-500 focus:border-orange-500 transition-all shadow-lg font-semibold"
+                  value={newVitalSigns.temperature}
+                  onChange={(e) => setNewVitalSigns(prev => ({...prev, temperature: e.target.value}))}
+                />
+                <input
+                  key="vital-bp"
+                  type="text"
+                  placeholder="💓 Presión (120/80)"
+                  className="w-full px-4 py-3 text-base bg-white border-2 border-gray-300 rounded-xl focus:ring-4 focus:ring-red-500 focus:border-red-500 transition-all shadow-lg font-semibold"
+                  value={newVitalSigns.bloodPressure}
+                  onChange={(e) => setNewVitalSigns(prev => ({...prev, bloodPressure: e.target.value}))}
+                />
+                <input
+                  key="vital-hr"
+                  type="text"
+                  placeholder="❤️ Frec. Cardíaca"
+                  className="w-full px-4 py-3 text-base bg-white border-2 border-gray-300 rounded-xl focus:ring-4 focus:ring-pink-500 focus:border-pink-500 transition-all shadow-lg font-semibold"
+                  value={newVitalSigns.heartRate}
+                  onChange={(e) => setNewVitalSigns(prev => ({...prev, heartRate: e.target.value}))}
+                />
+                <input
+                  key="vital-rr"
+                  type="text"
+                  placeholder="🫁 Frec. Respiratoria"
+                  className="w-full px-4 py-3 text-base bg-white border-2 border-gray-300 rounded-xl focus:ring-4 focus:ring-cyan-500 focus:border-cyan-500 transition-all shadow-lg font-semibold"
+                  value={newVitalSigns.respiratoryRate}
+                  onChange={(e) => setNewVitalSigns(prev => ({...prev, respiratoryRate: e.target.value}))}
+                />
+              </div>
+              <button
+                onClick={registerVitalSigns}
+                className="w-full py-4 text-lg bg-gradient-to-r from-red-500 via-pink-500 to-rose-500 text-white rounded-xl hover:from-red-600 hover:via-pink-600 hover:to-rose-600 transition-all font-bold shadow-xl hover:shadow-2xl hover:scale-[1.02] active:scale-[0.98] flex items-center justify-center gap-2"
+              >
+                <CheckCircle size={24} />
+                Registrar Signos Vitales
+              </button>
+            </div>
+          )}
+
+          {/* Medication Form */}
+          {activeFormTab === 'medication' && (
+            <div className="space-y-4 animate-fadeIn">
+              <h3 className="text-2xl font-bold mb-4 flex items-center gap-2">
+                <div className="bg-gradient-to-br from-green-500 to-emerald-500 p-3 rounded-xl text-white shadow-lg">
+                  <Pill size={24} />
+                </div>
+                <span className="bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent text-lg">
+                  Administrar Medicamento
+                </span>
+              </h3>
+              <select
+                className="w-full px-4 py-3 text-base bg-white border-2 border-gray-300 rounded-xl focus:ring-4 focus:ring-purple-500 focus:border-purple-500 transition-all shadow-lg font-semibold"
+                value={newTreatment.patientId}
+                onChange={(e) => setNewTreatment(prev => ({...prev, patientId: e.target.value}))}
+              >
+                <option value="">🏥 Seleccionar paciente</option>
+                {assignedPatients.map(p => (
+                  <option key={p.id} value={p.id}>{p.name} - Hab. {p.room}</option>
+                ))}
+              </select>
+              
+              <input
+                type="time"
+                className="w-full px-4 py-3 text-base bg-white border-2 border-gray-300 rounded-xl focus:ring-4 focus:ring-green-500 focus:border-green-500 transition-all shadow-lg font-semibold"
+                value={newTreatment.applicationTime}
+                onChange={(e) => setNewTreatment(prev => ({...prev, applicationTime: e.target.value}))}
+              />
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <input
+                  type="text"
+                  placeholder="💊 Medicamento"
+                  className="w-full px-4 py-3 text-base bg-white border-2 border-gray-300 rounded-xl focus:ring-4 focus:ring-purple-500 focus:border-purple-500 transition-all shadow-lg font-semibold"
+                  value={newTreatment.medication}
+                  onChange={(e) => setNewTreatment(prev => ({...prev, medication: e.target.value}))}
+                />
+                <input
+                  type="text"
+                  placeholder="📊 Dosis"
+                  className="w-full px-4 py-3 text-base bg-white border-2 border-gray-300 rounded-xl focus:ring-4 focus:ring-purple-500 focus:border-purple-500 transition-all shadow-lg font-semibold"
+                  value={newTreatment.dose}
+                  onChange={(e) => setNewTreatment(prev => ({...prev, dose: e.target.value}))}
+                />
+              </div>
+              <input
+                type="text"
+                placeholder="⏰ Frecuencia"
+                className="w-full px-4 py-3 text-base bg-white border-2 border-gray-300 rounded-xl focus:ring-4 focus:ring-purple-500 focus:border-purple-500 transition-all shadow-lg font-semibold"
+                value={newTreatment.frequency}
+                onChange={(e) => setNewTreatment(prev => ({...prev, frequency: e.target.value}))}
+              />
+              <textarea
+                placeholder="📝 Notas"
+                className="w-full px-4 py-3 text-base bg-white border-2 border-gray-300 rounded-xl focus:ring-4 focus:ring-purple-500 focus:border-purple-500 transition-all shadow-lg resize-none font-medium"
+                rows="3"
+                value={newTreatment.notes}
+                onChange={(e) => setNewTreatment(prev => ({...prev, notes: e.target.value}))}
+              />
+              <button
+                onClick={applyTreatment}
+                className="w-full py-4 text-lg bg-gradient-to-r from-green-500 via-emerald-500 to-teal-500 text-white rounded-xl hover:from-green-600 hover:via-emerald-600 hover:to-teal-600 transition-all font-bold shadow-xl hover:shadow-2xl hover:scale-[1.02] active:scale-[0.98] flex items-center justify-center gap-2"
+              >
+                <Pill size={24} />
+                Administrar Medicamento
+              </button>
+            </div>
+          )}
+
+          {/* Nursing Notes Form */}
+          {activeFormTab === 'notes' && (
+            <div className="space-y-4 animate-fadeIn">
+              <h3 className="text-2xl font-bold mb-4 flex items-center gap-2">
+                <div className="bg-gradient-to-br from-blue-500 to-cyan-500 p-3 rounded-xl text-white shadow-lg">
+                  <FileText size={24} />
+                </div>
+                <span className="bg-gradient-to-r from-blue-600 to-cyan-600 bg-clip-text text-transparent text-lg">
+                  Registrar Nota Evolutiva
+                </span>
+              </h3>
+              <select
+                className="w-full px-4 py-3 text-base bg-white border-2 border-gray-300 rounded-xl focus:ring-4 focus:ring-purple-500 focus:border-purple-500 transition-all shadow-lg font-semibold"
+                value={newNurseNote.patientId}
+                onChange={(e) => setNewNurseNote(prev => ({...prev, patientId: e.target.value}))}
+              >
+                <option value="">🏥 Seleccionar paciente</option>
+                {assignedPatients.map(p => (
+                  <option key={p.id} value={p.id}>{p.name} - Hab. {p.room}</option>
+                ))}
+              </select>
+              
+              <select
+                className="w-full px-4 py-3 text-base bg-white border-2 border-gray-300 rounded-xl focus:ring-4 focus:ring-blue-500 focus:border-blue-500 transition-all shadow-lg font-semibold"
+                value={newNurseNote.noteType}
+                onChange={(e) => setNewNurseNote(prev => ({...prev, noteType: e.target.value}))}
+              >
+                <option value="evolutiva">📋 Evolutiva</option>
+                <option value="ingreso">🏥 Ingreso</option>
+                <option value="procedimiento">💉 Procedimiento</option>
+                <option value="incidencia">⚠️ Incidencia</option>
+                <option value="seguimiento">👁️ Seguimiento</option>
+              </select>
+              
+              <textarea
+                placeholder="✍️ Escriba la nota evolutiva aquí..."
+                className="w-full px-4 py-3 text-base bg-white border-2 border-gray-300 rounded-xl focus:ring-4 focus:ring-blue-500 focus:border-blue-500 transition-all shadow-lg resize-none font-medium"
+                rows="8"
+                value={newNurseNote.note}
+                onChange={(e) => setNewNurseNote(prev => ({...prev, note: e.target.value}))}
+              />
+              <button
+                onClick={addNurseNote}
+                className="w-full py-4 text-lg bg-gradient-to-r from-blue-500 via-cyan-500 to-indigo-500 text-white rounded-xl hover:from-blue-600 hover:via-cyan-600 hover:to-indigo-600 transition-all font-bold shadow-xl hover:shadow-2xl hover:scale-[1.02] active:scale-[0.98] flex items-center justify-center gap-2"
+              >
+                <FileText size={24} />
+                Registrar Nota
+              </button>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Patient List - Vista Detallada de Pacientes */}
+      <div className="glass-effect p-6 rounded-2xl shadow-lg border border-gray-200/50">
+        <h3 className="text-xl font-bold mb-4 flex items-center bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">
+          <Users className="mr-2 text-purple-600" size={24} />
+          Vista Detallada de Pacientes
+        </h3>
+        {assignedPatients.length > 0 ? (
+          <div className="space-y-3 max-h-96 overflow-y-auto pr-2">
+            {assignedPatients.map(patient => {
                 const triageInfo = getTriageInfo(patient.triage_level || 3);
                 const patientNotesCount = nurseNotes.filter(n => n.patientId === patient.id).length;
                 const recentNotesCount = nurseNotes.filter(n => {
@@ -1645,53 +2068,53 @@ const HospitalManagementSystem = () => {
                 return (
                   <div 
                     key={patient.id} 
-                    className={`bg-white border-l-4 ${triageInfo.borderColor} p-4 rounded-xl hover:shadow-lg transition-all group relative overflow-hidden`}
+                    className={`bg-gradient-to-br from-white to-gray-50 border-l-[6px] ${triageInfo.borderColor} p-6 rounded-2xl hover:shadow-2xl transition-all group relative overflow-hidden hover:scale-[1.02]`}
                   >
                     {/* Triage indicator background */}
-                    <div className={`absolute top-0 right-0 w-24 h-24 ${triageInfo.bgLight} opacity-50 rounded-bl-full`}></div>
+                    <div className={`absolute top-0 right-0 w-32 h-32 ${triageInfo.bgLight} opacity-40 rounded-bl-full`}></div>
                     
                     <div className="relative">
-                      <div className="flex justify-between items-start mb-2">
+                      <div className="flex justify-between items-start mb-3">
                         <div className="flex-1">
-                          <div className="flex items-center gap-2 mb-1">
-                            <p className="font-bold text-gray-800 text-lg">{patient.name}</p>
-                            <span className={`text-2xl ${triageInfo.icon === '🔴' ? 'animate-pulse' : ''}`}>
+                          <div className="flex items-center gap-3 mb-2">
+                            <p className="font-bold text-gray-800 text-2xl">{patient.name}</p>
+                            <span className={`text-3xl ${triageInfo.icon === '🔴' ? 'animate-pulse' : ''}`}>
                               {triageInfo.icon}
                             </span>
                           </div>
-                          <p className="text-sm text-gray-600">🏥 Habitación {patient.room} • {patient.age} años</p>
-                          <p className="text-xs text-gray-500">🩸 Tipo de sangre: {patient.blood_type}</p>
+                          <p className="text-base text-gray-600 font-medium">🏥 Habitación {patient.room} • {patient.age} años</p>
+                          <p className="text-sm text-gray-500">🩸 Tipo de sangre: {patient.blood_type}</p>
                         </div>
                         <div className="flex flex-col items-end gap-2">
-                          <span className={'status-badge ' + (patient.condition === 'Crítico' ? 'bg-gradient-to-r from-red-500 to-pink-500 text-white' : patient.condition === 'Estable' ? 'bg-gradient-to-r from-green-500 to-emerald-500 text-white' : 'bg-gradient-to-r from-blue-500 to-cyan-500 text-white')}>
+                          <span className={'px-5 py-2.5 rounded-xl font-bold text-base shadow-lg ' + (patient.condition === 'Crítico' ? 'bg-gradient-to-r from-red-500 to-pink-500 text-white animate-pulse' : patient.condition === 'Estable' ? 'bg-gradient-to-r from-green-500 to-emerald-500 text-white' : 'bg-gradient-to-r from-blue-500 to-cyan-500 text-white')}>
                             {patient.condition}
                           </span>
                         </div>
                       </div>
                       
                       {/* Triage level indicator */}
-                      <div className={`mt-2 px-3 py-1.5 ${triageInfo.bgLight} border ${triageInfo.borderColor} rounded-lg`}>
+                      <div className={`mt-3 px-5 py-3 ${triageInfo.bgLight} border-2 ${triageInfo.borderColor} rounded-xl shadow-md`}>
                         <div className="flex items-center justify-between">
-                          <span className={`text-xs font-bold ${triageInfo.textColor} uppercase`}>
+                          <span className={`text-sm font-bold ${triageInfo.textColor} uppercase`}>
                             Triaje: Nivel {patient.triage_level || 3}
                           </span>
-                          <span className={`text-xs ${triageInfo.textColor} font-semibold`}>
+                          <span className={`text-sm ${triageInfo.textColor} font-semibold`}>
                             ⏱️ {triageInfo.priority}
                           </span>
                         </div>
-                        <p className="text-xs text-gray-600 mt-0.5">{triageInfo.description}</p>
+                        <p className="text-sm text-gray-600 mt-1">{triageInfo.description}</p>
                       </div>
                       
                       {/* Notas evolutivas counter */}
                       {patientNotesCount > 0 && (
-                        <div className="mt-2 flex items-center gap-2">
-                          <div className="flex items-center gap-1 px-3 py-1 bg-blue-50 border border-blue-200 rounded-lg text-xs">
-                            <FileText size={14} className="text-blue-600" />
-                            <span className="font-semibold text-blue-700">
+                        <div className="mt-3 flex items-center gap-3">
+                          <div className="flex items-center gap-2 px-5 py-2.5 bg-gradient-to-br from-blue-50 to-cyan-50 border-2 border-blue-200 rounded-xl text-sm shadow-md">
+                            <FileText size={18} className="text-blue-600" />
+                            <span className="font-bold text-blue-700">
                               {patientNotesCount} {patientNotesCount === 1 ? 'nota' : 'notas'}
                             </span>
                             {recentNotesCount > 0 && (
-                              <span className="ml-1 px-1.5 py-0.5 bg-green-500 text-white rounded text-xs font-bold">
+                              <span className="ml-2 px-3 py-1 bg-green-500 text-white rounded-lg text-xs font-bold shadow-md">
                                 {recentNotesCount} HOY
                               </span>
                             )}
@@ -1701,9 +2124,9 @@ const HospitalManagementSystem = () => {
                               e.stopPropagation();
                               viewPatientDetails(patient);
                             }}
-                            className="flex-1 px-3 py-1 bg-indigo-500 hover:bg-indigo-600 text-white rounded-lg text-xs font-semibold transition-all flex items-center justify-center gap-1"
+                            className="flex-1 px-5 py-2.5 bg-gradient-to-r from-indigo-500 to-purple-500 hover:from-indigo-600 hover:to-purple-600 text-white rounded-xl text-sm font-bold transition-all flex items-center justify-center gap-2 shadow-lg hover:shadow-xl hover:scale-105"
                           >
-                            <FileText size={14} />
+                            <FileText size={18} />
                             Ver Historial
                           </button>
                         </div>
@@ -1715,371 +2138,15 @@ const HospitalManagementSystem = () => {
                     </div>
                   </div>
                 );
-              })}
-            </div>
-          ) : (
-            <div className="text-center py-8 text-gray-500">
-              <Users className="mx-auto mb-3 text-gray-400" size={48} />
-              <p>No hay pacientes asignados en este turno</p>
-              <p className="text-sm mt-2">Contacte al supervisor de turno para obtener asignaciones</p>
-            </div>
-          )}
-        </div>
-
-        <div className="glass-effect p-6 rounded-2xl shadow-lg border border-gray-200/50">
-          <h3 className="text-xl font-bold mb-5 flex items-center bg-gradient-to-r from-red-600 to-pink-600 bg-clip-text text-transparent">
-            <Activity className="mr-2 text-red-600" size={24} />
-            Registrar Signos Vitales
-          </h3>
-          <div className="space-y-4">
-            <select
-              key="vital-patient-select"
-              className="w-full px-4 py-3 bg-white border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all shadow-sm hover:shadow-md"
-              value={newVitalSigns.patientId}
-              onChange={(e) => setNewVitalSigns(prev => ({...prev, patientId: e.target.value}))}
-            >
-              <option value="">Seleccionar paciente</option>
-              {assignedPatients.map(p => (
-                <option key={p.id} value={p.id}>{p.name} - Hab. {p.room}</option>
-              ))}
-            </select>
-            
-            <div className="bg-blue-50 border border-blue-200 rounded-xl p-3">
-              <label className="block text-xs font-semibold text-blue-700 mb-2 flex items-center">
-                <Clock className="mr-1" size={14} />
-                Fecha y Hora de Toma
-              </label>
-              <input
-                type="datetime-local"
-                className="w-full px-4 py-2.5 bg-white border-2 border-blue-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all shadow-sm"
-                value={newVitalSigns.dateTime}
-                onChange={(e) => setNewVitalSigns(prev => ({...prev, dateTime: e.target.value}))}
-                max={new Date().toISOString().slice(0, 16)}
-              />
-              <p className="text-xs text-blue-600 mt-1">⚡ Si no especifica, se usará la hora actual</p>
-            </div>
-            
-            <input
-              key="vital-temp"
-              type="text"
-              placeholder="🌡️ Temperatura (°C)"
-              className="w-full px-4 py-3 bg-white border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all shadow-sm hover:shadow-md"
-              value={newVitalSigns.temperature}
-              onChange={(e) => setNewVitalSigns(prev => ({...prev, temperature: e.target.value}))}
-            />
-            <input
-              key="vital-bp"
-              type="text"
-              placeholder="💓 Presión Arterial (120/80)"
-              className="w-full px-4 py-3 bg-white border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all shadow-sm hover:shadow-md"
-              value={newVitalSigns.bloodPressure}
-              onChange={(e) => setNewVitalSigns(prev => ({...prev, bloodPressure: e.target.value}))}
-            />
-            <input
-              key="vital-hr"
-              type="text"
-              placeholder="❤️ Frecuencia Cardíaca (lpm)"
-              className="w-full px-4 py-3 bg-white border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all shadow-sm hover:shadow-md"
-              value={newVitalSigns.heartRate}
-              onChange={(e) => setNewVitalSigns(prev => ({...prev, heartRate: e.target.value}))}
-            />
-            <input
-              key="vital-rr"
-              type="text"
-              placeholder="🫁 Frecuencia Respiratoria (rpm)"
-              className="w-full px-4 py-3 bg-white border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all shadow-sm hover:shadow-md"
-              value={newVitalSigns.respiratoryRate}
-              onChange={(e) => setNewVitalSigns(prev => ({...prev, respiratoryRate: e.target.value}))}
-            />
-            <button
-              onClick={registerVitalSigns}
-              className="w-full py-3.5 bg-gradient-to-r from-red-500 to-pink-500 text-white rounded-xl hover:from-red-600 hover:to-pink-600 transition-all font-bold shadow-lg hover:shadow-xl flex items-center justify-center"
-            >
-              <CheckCircle className="mr-2" size={20} />
-              Registrar Signos Vitales
-            </button>
+            })}
           </div>
-        </div>
-      </div>
-
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div className="glass-effect p-6 rounded-2xl shadow-lg border border-gray-200/50">
-          <h3 className="text-xl font-bold mb-5 flex items-center bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent">
-            <Pill className="mr-2 text-green-600" size={24} />
-            Administrar Medicamento
-          </h3>
-          <div className="space-y-4">
-            <select
-              className="w-full px-4 py-3 bg-white border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all shadow-sm hover:shadow-md"
-              value={newTreatment.patientId}
-              onChange={(e) => setNewTreatment(prev => ({...prev, patientId: e.target.value}))}
-            >
-              <option value="">Seleccionar paciente</option>
-              {assignedPatients.map(p => (
-                <option key={p.id} value={p.id}>{p.name} - Hab. {p.room}</option>
-              ))}
-            </select>
-            
-            <div className="bg-green-50 border border-green-200 rounded-xl p-3">
-              <label className="block text-xs font-semibold text-green-700 mb-2 flex items-center">
-                <Clock className="mr-1" size={14} />
-                Hora de Aplicación
-              </label>
-              <input
-                type="time"
-                className="w-full px-4 py-2.5 bg-white border-2 border-green-200 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all shadow-sm"
-                value={newTreatment.applicationTime}
-                onChange={(e) => setNewTreatment(prev => ({...prev, applicationTime: e.target.value}))}
-              />
-              <p className="text-xs text-green-600 mt-1">⚡ Si no especifica, se usará la hora actual</p>
-            </div>
-            
-            <input
-              type="text"
-              placeholder="💊 Medicamento"
-              className="w-full px-4 py-3 bg-white border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all shadow-sm hover:shadow-md"
-              value={newTreatment.medication}
-              onChange={(e) => setNewTreatment(prev => ({...prev, medication: e.target.value}))}
-            />
-            <input
-              type="text"
-              placeholder="📊 Dosis (ej: 50mg)"
-              className="w-full px-4 py-3 bg-white border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all shadow-sm hover:shadow-md"
-              value={newTreatment.dose}
-              onChange={(e) => setNewTreatment(prev => ({...prev, dose: e.target.value}))}
-            />
-            <input
-              type="text"
-              placeholder="⏰ Frecuencia (ej: Cada 8 horas)"
-              className="w-full px-4 py-3 bg-white border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all shadow-sm hover:shadow-md"
-              value={newTreatment.frequency}
-              onChange={(e) => setNewTreatment(prev => ({...prev, frequency: e.target.value}))}
-            />
-            <textarea
-              placeholder="📝 Notas adicionales (opcional)"
-              className="w-full px-4 py-3 bg-white border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all shadow-sm hover:shadow-md resize-none"
-              rows="3"
-              value={newTreatment.notes}
-              onChange={(e) => setNewTreatment(prev => ({...prev, notes: e.target.value}))}
-            />
-            <button
-              onClick={applyTreatment}
-              className="w-full py-3.5 bg-gradient-to-r from-green-500 to-emerald-500 text-white rounded-xl hover:from-green-600 hover:to-emerald-600 transition-all font-bold shadow-lg hover:shadow-xl flex items-center justify-center"
-            >
-              <Pill className="mr-2" size={20} />
-              Registrar Administración
-            </button>
+        ) : (
+          <div className="text-center py-8 text-gray-500">
+            <Users className="mx-auto mb-3 text-gray-400" size={48} />
+            <p>No hay pacientes asignados en este turno</p>
+            <p className="text-sm mt-2">Contacte al supervisor de turno para obtener asignaciones</p>
           </div>
-        </div>
-
-        <div className="glass-effect p-6 rounded-2xl shadow-lg border border-gray-200/50">
-          <h3 className="text-xl font-bold mb-5 flex items-center bg-gradient-to-r from-blue-600 to-cyan-600 bg-clip-text text-transparent">
-            <FileText className="mr-2 text-blue-600" size={24} />
-            Registrar Nota Evolutiva
-          </h3>
-          <div className="space-y-4">
-            <select
-              className="w-full px-4 py-3 bg-white border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all shadow-sm hover:shadow-md"
-              value={newNurseNote.patientId}
-              onChange={(e) => setNewNurseNote(prev => ({...prev, patientId: e.target.value}))}
-            >
-              <option value="">Seleccionar paciente asignado</option>
-              {assignedPatients.map(p => (
-                <option key={p.id} value={p.id}>{p.name} - Hab. {p.room}</option>
-              ))}
-            </select>
-            
-            {/* Tipo de nota */}
-            <select
-              className="w-full px-4 py-3 bg-white border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all shadow-sm hover:shadow-md"
-              value={newNurseNote.noteType || 'evolutiva'}
-              onChange={(e) => setNewNurseNote(prev => ({...prev, noteType: e.target.value}))}
-            >
-              <option value="evolutiva">📋 Nota Evolutiva</option>
-              <option value="observacion">👁️ Observación</option>
-              <option value="incidente">⚠️ Incidente</option>
-              <option value="mejora">✅ Mejoría</option>
-              <option value="deterioro">🔴 Deterioro</option>
-            </select>
-            
-            {/* Plantillas rápidas */}
-            <div className="grid grid-cols-2 gap-2">
-              <button
-                type="button"
-                onClick={() => setNewNurseNote(prev => ({...prev, note: (prev.note || '') + 'Paciente estable, sin cambios significativos. '}))}
-                className="px-3 py-2 bg-green-50 border border-green-200 rounded-lg hover:bg-green-100 transition text-xs text-left"
-              >
-                💚 Estable
-              </button>
-              <button
-                type="button"
-                onClick={() => setNewNurseNote(prev => ({...prev, note: (prev.note || '') + 'Signos vitales dentro de rango normal. '}))}
-                className="px-3 py-2 bg-blue-50 border border-blue-200 rounded-lg hover:bg-blue-100 transition text-xs text-left"
-              >
-                💙 Vitales normales
-              </button>
-              <button
-                type="button"
-                onClick={() => setNewNurseNote(prev => ({...prev, note: (prev.note || '') + 'Requiere monitoreo continuo. '}))}
-                className="px-3 py-2 bg-yellow-50 border border-yellow-200 rounded-lg hover:bg-yellow-100 transition text-xs text-left"
-              >
-                ⚠️ Monitoreo
-              </button>
-              <button
-                type="button"
-                onClick={() => setNewNurseNote(prev => ({...prev, note: (prev.note || '') + 'Paciente responde bien al tratamiento. '}))}
-                className="px-3 py-2 bg-emerald-50 border border-emerald-200 rounded-lg hover:bg-emerald-100 transition text-xs text-left"
-              >
-                ✅ Responde bien
-              </button>
-            </div>
-            
-            <textarea
-              placeholder="📋 Escriba la nota evolutiva del paciente...
-
-Ejemplo:
-- Estado general del paciente
-- Cambios observados desde la última revisión
-- Respuesta a medicamentos o tratamientos
-- Síntomas reportados
-- Acciones tomadas"
-              className="w-full px-4 py-3 bg-white border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all shadow-sm hover:shadow-md resize-none"
-              rows="8"
-              value={newNurseNote.note}
-              onChange={(e) => setNewNurseNote(prev => ({...prev, note: e.target.value}))}
-            />
-            
-            <div className="flex gap-2">
-              <button
-                onClick={addNurseNote}
-                className="flex-1 py-3.5 bg-gradient-to-r from-blue-500 to-cyan-500 text-white rounded-xl hover:from-blue-600 hover:to-cyan-600 transition-all font-bold shadow-lg hover:shadow-xl flex items-center justify-center"
-              >
-                <FileText className="mr-2" size={20} />
-                Registrar Nota Evolutiva
-              </button>
-              <button
-                type="button"
-                onClick={() => setNewNurseNote({ patientId: '', note: '', noteType: 'evolutiva' })}
-                className="px-6 py-3.5 bg-gray-200 text-gray-700 rounded-xl hover:bg-gray-300 transition-all font-semibold"
-              >
-                Limpiar
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Formulario de Tratamientos No Farmacológicos */}
-      <div className="glass-effect p-6 rounded-2xl shadow-lg border border-gray-200/50">
-        <h3 className="text-xl font-bold mb-5 flex items-center bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
-          <Scissors className="mr-2 text-purple-600" size={24} />
-          Registrar Tratamiento No Farmacológico
-        </h3>
-        <div className="space-y-4">
-          <select
-            className="w-full px-4 py-3 bg-white border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all shadow-sm hover:shadow-md"
-            value={newNonPharmaTreatment.patientId}
-            onChange={(e) => setNewNonPharmaTreatment(prev => ({...prev, patientId: e.target.value}))}
-          >
-            <option value="">Seleccionar paciente</option>
-            {assignedPatients.map(p => (
-              <option key={p.id} value={p.id}>{p.name} - Hab. {p.room}</option>
-            ))}
-          </select>
-          
-          <select
-            className="w-full px-4 py-3 bg-white border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all shadow-sm hover:shadow-md font-semibold"
-            value={newNonPharmaTreatment.treatmentType}
-            onChange={(e) => setNewNonPharmaTreatment(prev => ({...prev, treatmentType: e.target.value}))}
-          >
-            <option value="">🏥 Tipo de Tratamiento</option>
-            <option value="Curación">🩹 Curación</option>
-            <option value="Nebulización">💨 Nebulización</option>
-            <option value="Fluidoterapia">💧 Fluidoterapia</option>
-            <option value="Oxigenoterapia">🫁 Oxigenoterapia</option>
-            <option value="Fisioterapia Respiratoria">🌬️ Fisioterapia Respiratoria</option>
-            <option value="Aspiración de Secreciones">🔬 Aspiración de Secreciones</option>
-            <option value="Cambio de Sonda">🔌 Cambio de Sonda</option>
-            <option value="Cambio de Catéter">💉 Cambio de Catéter</option>
-            <option value="Enema">💊 Enema</option>
-            <option value="Baño de Esponja">🧽 Baño de Esponja</option>
-            <option value="Movilización">🤸 Movilización</option>
-            <option value="Prevención de Úlceras">🛡️ Prevención de Úlceras por Presión</option>
-            <option value="Otro">📝 Otro</option>
-          </select>
-          
-          <textarea
-            placeholder="📋 Descripción del tratamiento (detalle el procedimiento realizado)"
-            className="w-full px-4 py-3 bg-white border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all shadow-sm hover:shadow-md resize-none"
-            rows="3"
-            value={newNonPharmaTreatment.description}
-            onChange={(e) => setNewNonPharmaTreatment(prev => ({...prev, description: e.target.value}))}
-          />
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-            <div className="bg-purple-50 border border-purple-200 rounded-xl p-3">
-              <label className="block text-xs font-semibold text-purple-700 mb-2 flex items-center">
-                <Clock className="mr-1" size={14} />
-                Hora de Aplicación
-              </label>
-              <input
-                type="time"
-                className="w-full px-4 py-2.5 bg-white border-2 border-purple-200 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all shadow-sm"
-                value={newNonPharmaTreatment.applicationTime}
-                onChange={(e) => setNewNonPharmaTreatment(prev => ({...prev, applicationTime: e.target.value}))}
-              />
-              <p className="text-xs text-purple-600 mt-1">⚡ Si no especifica, se usará la hora actual</p>
-            </div>
-            
-            <input
-              type="text"
-              placeholder="⏱️ Duración (ej: 30 minutos)"
-              className="w-full px-4 py-3 bg-white border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all shadow-sm hover:shadow-md"
-              value={newNonPharmaTreatment.duration}
-              onChange={(e) => setNewNonPharmaTreatment(prev => ({...prev, duration: e.target.value}))}
-            />
-          </div>
-          
-          <input
-            type="text"
-            placeholder="📦 Materiales utilizados (opcional)"
-            className="w-full px-4 py-3 bg-white border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all shadow-sm hover:shadow-md"
-            value={newNonPharmaTreatment.materialsUsed}
-            onChange={(e) => setNewNonPharmaTreatment(prev => ({...prev, materialsUsed: e.target.value}))}
-          />
-          
-          <textarea
-            placeholder="👁️ Observaciones durante el procedimiento (opcional)"
-            className="w-full px-4 py-3 bg-white border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all shadow-sm hover:shadow-md resize-none"
-            rows="2"
-            value={newNonPharmaTreatment.observations}
-            onChange={(e) => setNewNonPharmaTreatment(prev => ({...prev, observations: e.target.value}))}
-          />
-          
-          <input
-            type="text"
-            placeholder="✅ Resultado del tratamiento (opcional)"
-            className="w-full px-4 py-3 bg-white border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all shadow-sm hover:shadow-md"
-            value={newNonPharmaTreatment.outcome}
-            onChange={(e) => setNewNonPharmaTreatment(prev => ({...prev, outcome: e.target.value}))}
-          />
-          
-          <input
-            type="datetime-local"
-            placeholder="📅 Próxima aplicación (opcional)"
-            className="w-full px-4 py-3 bg-white border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all shadow-sm hover:shadow-md"
-            value={newNonPharmaTreatment.nextApplication}
-            onChange={(e) => setNewNonPharmaTreatment(prev => ({...prev, nextApplication: e.target.value}))}
-          />
-          
-          <button
-            onClick={applyNonPharmaTreatment}
-            className="w-full py-3.5 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-xl hover:from-purple-600 hover:to-pink-600 transition-all font-bold shadow-lg hover:shadow-xl flex items-center justify-center"
-          >
-            <Scissors className="mr-2" size={20} />
-            Registrar Tratamiento
-          </button>
-        </div>
+        )}
       </div>
 
       {/* Notas Evolutivas del Turno */}
@@ -2211,63 +2278,69 @@ Ejemplo:
               return (
                 <div 
                   key={treatment.id || index} 
-                  className="border-l-4 border-purple-300 bg-purple-50 rounded-xl p-4 hover:shadow-md transition-all"
+                  className="border-l-6 border-purple-400 bg-gradient-to-br from-purple-50 to-pink-50 rounded-2xl p-6 hover:shadow-2xl transition-all hover:scale-[1.02] shadow-lg"
                 >
-                  <div className="flex items-start justify-between mb-3">
-                    <div className="flex items-center gap-2 flex-1">
-                      <div className="bg-purple-500 text-white p-2 rounded-lg">
-                        <Scissors size={20} />
+                  <div className="flex items-start justify-between mb-4">
+                    <div className="flex items-center gap-3 flex-1">
+                      <div className="bg-gradient-to-br from-purple-500 to-pink-500 text-white p-3 rounded-xl shadow-lg">
+                        <Scissors size={28} />
                       </div>
                       <div className="flex-1">
-                        <div className="flex items-center gap-2 flex-wrap">
-                          <p className="font-bold text-gray-800">
+                        <div className="flex items-center gap-3 flex-wrap">
+                          <p className="font-bold text-gray-900 text-xl">
                             {patient ? patient.name : 'Paciente desconocido'}
                           </p>
-                          {isToday && <span className="text-xs bg-blue-500 text-white px-2 py-0.5 rounded-full">HOY</span>}
-                          {isRecent && <span className="text-xs bg-green-500 text-white px-2 py-0.5 rounded-full">RECIENTE</span>}
+                          {isToday && <span className="text-sm bg-blue-500 text-white px-3 py-1 rounded-full font-bold">HOY</span>}
+                          {isRecent && <span className="text-sm bg-green-500 text-white px-3 py-1 rounded-full font-bold">RECIENTE</span>}
                         </div>
-                        <p className="text-xs text-gray-500">
+                        <p className="text-sm text-gray-600 font-medium mt-1">
                           🏥 Habitación {patient?.room} • 
-                          <Clock className="inline ml-1 mr-1" size={12} />
+                          <Clock className="inline ml-2 mr-1" size={14} />
                           {treatment.applicationTime || 'Hora no especificada'}
                         </p>
                       </div>
                     </div>
                   </div>
                   
-                  <div className="bg-white rounded-lg p-3 mb-3">
-                    <div className="flex items-center gap-2 mb-2">
-                      <span className="text-2xl">{treatmentTypeIcons[treatment.treatmentType] || '📝'}</span>
-                      <span className="font-bold text-purple-700 text-lg">{treatment.treatmentType}</span>
+                  <div className="bg-white rounded-xl p-5 mb-4 shadow-md border-2 border-purple-200">
+                    <div className="flex items-center gap-3 mb-3">
+                      <span className="text-3xl">{treatmentTypeIcons[treatment.treatmentType] || '📝'}</span>
+                      <span className="font-bold text-purple-800 text-2xl">{treatment.treatmentType}</span>
                       {treatment.duration && (
-                        <span className="ml-auto text-xs bg-purple-200 text-purple-800 px-2 py-1 rounded-full font-semibold">
+                        <span className="ml-auto text-base bg-purple-200 text-purple-900 px-4 py-2 rounded-full font-bold">
                           ⏱️ {treatment.duration}
                         </span>
                       )}
                     </div>
-                    <p className="text-sm text-gray-700 leading-relaxed">
+                    <p className="text-lg text-gray-800 leading-relaxed font-medium">
                       {treatment.description}
                     </p>
                   </div>
                   
                   {treatment.materialsUsed && (
-                    <div className="bg-white rounded-lg p-2.5 mb-2">
-                      <p className="text-xs text-gray-600 font-semibold mb-1">📦 Materiales utilizados:</p>
-                      <p className="text-sm text-gray-700">{treatment.materialsUsed}</p>
+                    <div className="bg-gradient-to-br from-blue-50 to-cyan-50 border-2 border-blue-300 rounded-xl p-4 mb-3 shadow-md">
+                      <p className="text-sm text-blue-800 font-bold mb-2 flex items-center gap-2">
+                        <span className="text-2xl">📦</span> Materiales utilizados:
+                      </p>
+                      <p className="text-lg text-blue-900 font-medium">{treatment.materialsUsed}</p>
                     </div>
                   )}
                   
                   {treatment.observations && (
-                    <div className="bg-white rounded-lg p-2.5 mb-2">
-                      <p className="text-xs text-gray-600 font-semibold mb-1">👁️ Observaciones:</p>
-                      <p className="text-sm text-gray-700 italic">{treatment.observations}</p>
+                    <div className="bg-gradient-to-br from-amber-50 to-yellow-50 border-2 border-amber-300 rounded-xl p-4 mb-3 shadow-md">
+                      <p className="text-sm text-amber-800 font-bold mb-2 flex items-center gap-2">
+                        <span className="text-2xl">👁️</span> Observaciones:
+                      </p>
+                      <p className="text-lg text-amber-900 italic font-medium">{treatment.observations}</p>
                     </div>
                   )}
                   
                   {treatment.outcome && (
-                    <div className="bg-green-50 border border-green-200 rounded-lg p-2.5 mb-2">
-                      <p className="text-xs text-green-700 font-semibold mb-1">✅ Resultado:</p>
-                      <p className="text-sm text-green-800">{treatment.outcome}</p>
+                    <div className="bg-gradient-to-br from-green-100 to-emerald-100 border-4 border-green-400 rounded-xl p-4 mb-3 shadow-lg">
+                      <p className="text-sm text-green-800 font-bold mb-2 flex items-center gap-2">
+                        <span className="text-2xl">✅</span> Resultado:
+                      </p>
+                      <p className="text-lg text-green-900 font-bold">{treatment.outcome}</p>
                     </div>
                   )}
                   
@@ -3042,7 +3115,7 @@ Ejemplo:
         </nav>
       )}
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 md:py-8">
+      <div className="max-w-[1920px] mx-auto px-6 sm:px-8 lg:px-12 py-4 md:py-6">
         <ErrorBoundary>
           {currentView === 'home' && <HomePage />}
           {currentView === 'login' && (

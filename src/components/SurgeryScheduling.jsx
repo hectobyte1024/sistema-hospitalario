@@ -297,67 +297,77 @@ const SurgeryScheduling = ({ currentUser }) => {
   const completed = surgeries.filter(s => s.status === 'Completada').length;
 
   return (
-    <div className="p-6 space-y-6 animate-fadeIn">
+    <div className="p-8 space-y-8 animate-fadeIn min-h-screen bg-gradient-to-br from-purple-50 via-indigo-50 to-blue-100">
       {/* Header */}
-      <div className="flex justify-between items-center">
-        <div>
-          <h1 className="text-3xl font-bold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent flex items-center gap-3">
-            <Scissors className="text-purple-600" size={32} />
-            Programación de Cirugías
-          </h1>
-          <p className="text-gray-600 dark:text-gray-400 mt-1">
-            Gestión de quirófanos y procedimientos quirúrgicos
-          </p>
+      <div className="bg-gradient-to-r from-purple-600 via-indigo-600 to-blue-600 rounded-3xl p-10 shadow-[0_20px_60px_-15px_rgba(0,0,0,0.3)] border-4 border-purple-200">
+        <div className="flex justify-between items-center">
+          <div>
+            <h1 className="text-5xl md:text-6xl font-bold text-white flex items-center gap-4">
+              <div className="bg-white/20 p-5 rounded-2xl backdrop-blur-xl">
+                <Scissors className="text-white" size={64} />
+              </div>
+              Programación de Cirugías
+            </h1>
+            <p className="text-purple-100 mt-4 text-2xl font-medium">
+              🏥 Gestión de quirófanos y procedimientos quirúrgicos
+            </p>
+          </div>
+          <button
+            onClick={() => {
+              setEditingSurgery(null);
+              setShowSurgeryForm(true);
+            }}
+            className="bg-white text-purple-600 px-8 py-5 rounded-2xl hover:shadow-2xl transition-all flex items-center gap-3 text-xl font-bold hover:scale-105"
+          >
+            <Plus size={28} />
+            Nueva Cirugía
+          </button>
         </div>
-        <button
-          onClick={() => {
-            setEditingSurgery(null);
-            setShowSurgeryForm(true);
-          }}
-          className="bg-gradient-to-r from-purple-600 to-blue-600 text-white px-6 py-3 rounded-xl hover:shadow-lg transition-all flex items-center gap-2"
-        >
-          <Plus size={20} />
-          Nueva Cirugía
-        </button>
       </div>
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-        <div className="bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl p-6 text-white shadow-lg">
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+        <div className="bg-gradient-to-br from-blue-500 via-blue-600 to-blue-700 rounded-3xl p-8 text-white shadow-[0_20px_60px_-15px_rgba(59,130,246,0.5)] hover:shadow-[0_25px_70px_-15px_rgba(59,130,246,0.6)] transition-all hover:scale-105">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-blue-100 text-sm">Cirugías Hoy</p>
-              <p className="text-3xl font-bold mt-1">{todaySurgeries.length}</p>
+              <p className="text-blue-100 text-lg font-medium">Cirugías Hoy</p>
+              <p className="text-5xl font-bold mt-3">{todaySurgeries.length}</p>
             </div>
-            <Calendar className="text-blue-200" size={40} />
+            <div className="bg-white/20 p-4 rounded-2xl">
+              <Calendar className="text-white" size={48} />
+            </div>
           </div>
         </div>
 
-        <div className="bg-gradient-to-br from-yellow-500 to-yellow-600 rounded-2xl p-6 text-white shadow-lg animate-pulse">
+        <div className="bg-gradient-to-br from-yellow-500 via-yellow-600 to-yellow-700 rounded-3xl p-8 text-white shadow-[0_20px_60px_-15px_rgba(234,179,8,0.5)] hover:shadow-[0_25px_70px_-15px_rgba(234,179,8,0.6)] transition-all hover:scale-105 animate-pulse">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-yellow-100 text-sm">En Proceso</p>
-              <p className="text-3xl font-bold mt-1">{inProgress}</p>
+              <p className="text-yellow-100 text-lg font-medium">En Proceso</p>
+              <p className="text-5xl font-bold mt-3">{inProgress}</p>
             </div>
-            <Activity className="text-yellow-200" size={40} />
+            <div className="bg-white/20 p-4 rounded-2xl">
+              <Activity className="text-white" size={48} />
+            </div>
           </div>
         </div>
 
-        <div className="bg-gradient-to-br from-purple-500 to-purple-600 rounded-2xl p-6 text-white shadow-lg">
+        <div className="bg-gradient-to-br from-purple-500 via-purple-600 to-purple-700 rounded-3xl p-8 text-white shadow-[0_20px_60px_-15px_rgba(168,85,247,0.5)] hover:shadow-[0_25px_70px_-15px_rgba(168,85,247,0.6)] transition-all hover:scale-105">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-purple-100 text-sm">Programadas</p>
-              <p className="text-3xl font-bold mt-1">{scheduled}</p>
+              <p className="text-purple-100 text-lg font-medium">Programadas</p>
+              <p className="text-5xl font-bold mt-3">{scheduled}</p>
             </div>
-            <Clock className="text-purple-200" size={40} />
+            <div className="bg-white/20 p-4 rounded-2xl">
+              <Clock className="text-white" size={48} />
+            </div>
           </div>
         </div>
 
-        <div className="bg-gradient-to-br from-green-500 to-green-600 rounded-2xl p-6 text-white shadow-lg">
+        <div className="bg-gradient-to-br from-green-500 via-green-600 to-green-700 rounded-3xl p-8 text-white shadow-[0_20px_60px_-15px_rgba(34,197,94,0.5)] hover:shadow-[0_25px_70px_-15px_rgba(34,197,94,0.6)] transition-all hover:scale-105">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-green-100 text-sm">Completadas</p>
-              <p className="text-3xl font-bold mt-1">{completed}</p>
+              <p className="text-green-100 text-lg font-medium">Completadas</p>
+              <p className="text-5xl font-bold mt-3">{completed}</p>
             </div>
             <Check className="text-green-200" size={40} />
           </div>

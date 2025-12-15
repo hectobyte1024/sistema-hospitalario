@@ -364,38 +364,40 @@ export default function AppointmentCalendar({ currentUser }) {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 dark:from-gray-900 dark:via-slate-900 dark:to-indigo-950 p-6">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 dark:from-gray-900 dark:via-slate-900 dark:to-indigo-950 p-8">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
-        <div className="mb-6">
-          <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent flex items-center gap-3">
-            <CalendarIcon className="w-10 h-10 text-blue-600" />
+        <div className="mb-8 bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 rounded-3xl p-10 shadow-[0_20px_60px_-15px_rgba(0,0,0,0.3)] border-4 border-blue-200">
+          <h1 className="text-5xl md:text-6xl font-bold text-white flex items-center gap-4">
+            <div className="bg-white/20 p-5 rounded-2xl backdrop-blur-xl">
+              <CalendarIcon className="w-16 h-16 text-white" />
+            </div>
             Calendario de Citas
           </h1>
-          <p className="text-gray-600 dark:text-gray-400 mt-2">
-            Gestiona y programa citas médicas
+          <p className="text-blue-100 mt-4 text-2xl font-medium">
+            📝 Gestiona y programa citas médicas
           </p>
         </div>
 
-        <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl rounded-2xl shadow-2xl border border-white/20 dark:border-gray-700/20 overflow-hidden">
+        <div className="bg-gradient-to-br from-white via-blue-50/30 to-white dark:bg-gray-800/80 backdrop-blur-xl rounded-3xl shadow-[0_25px_70px_-15px_rgba(0,0,0,0.3)] border-4 border-blue-200 dark:border-gray-700/20 overflow-hidden">
           {/* Controls */}
-          <div className="p-6 border-b border-gray-200 dark:border-gray-700 space-y-4">
-            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+          <div className="p-8 border-b-4 border-blue-200 dark:border-gray-700 space-y-6 bg-gradient-to-r from-blue-50 to-purple-50">
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
               {/* Navigation */}
-              <div className="flex items-center gap-3">
-                <button onClick={handlePreviousPeriod} className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors">
-                  <ChevronLeft className="w-5 h-5" />
+              <div className="flex items-center gap-4">
+                <button onClick={handlePreviousPeriod} className="p-4 hover:bg-blue-100 dark:hover:bg-gray-700 rounded-2xl transition-all shadow-lg hover:shadow-xl hover:scale-105 bg-white border-4 border-blue-200">
+                  <ChevronLeft className="w-7 h-7 text-blue-600" />
                 </button>
-                <div className="text-xl font-bold text-gray-900 dark:text-white min-w-[200px] text-center">
+                <div className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white min-w-[280px] text-center bg-white px-8 py-4 rounded-2xl shadow-xl border-4 border-purple-200">
                   {view === 'month' && currentDate.toLocaleDateString('es-ES', { month: 'long', year: 'numeric' })}
                   {view === 'week' && `Semana del ${currentDate.toLocaleDateString('es-ES', { day: 'numeric', month: 'short' })}`}
                   {view === 'day' && currentDate.toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}
                 </div>
-                <button onClick={handleNextPeriod} className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors">
-                  <ChevronRight className="w-5 h-5" />
+                <button onClick={handleNextPeriod} className="p-4 hover:bg-blue-100 dark:hover:bg-gray-700 rounded-2xl transition-all shadow-lg hover:shadow-xl hover:scale-105 bg-white border-4 border-blue-200">
+                  <ChevronRight className="w-7 h-7 text-blue-600" />
                 </button>
-                <button onClick={handleToday} className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors">
-                  Hoy
+                <button onClick={handleToday} className="px-8 py-4 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white rounded-2xl transition-all text-xl font-bold shadow-2xl hover:shadow-3xl hover:scale-105">
+                  📅 Hoy
                 </button>
               </div>
 

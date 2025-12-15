@@ -350,54 +350,64 @@ const LabManagement = ({ currentUser }) => {
   const criticalResults = labTests.filter(t => t.urgentAlert).length;
 
   return (
-    <div className="p-6 space-y-6 animate-fadeIn">
+    <div className="p-8 space-y-8 animate-fadeIn min-h-screen bg-gradient-to-br from-cyan-50 via-blue-50 to-indigo-100">
       {/* Header */}
-      <div className="flex justify-between items-center">
-        <div>
-          <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-cyan-600 bg-clip-text text-transparent flex items-center gap-3">
-            <TestTube className="text-blue-600" size={32} />
-            Laboratorio Clínico
-          </h1>
-          <p className="text-gray-600 dark:text-gray-400 mt-1">
-            Gestión de pruebas y resultados de laboratorio
-          </p>
+      <div className="bg-gradient-to-r from-cyan-600 via-blue-600 to-indigo-600 rounded-3xl p-10 shadow-[0_20px_60px_-15px_rgba(0,0,0,0.3)] border-4 border-cyan-200">
+        <div className="flex justify-between items-center">
+          <div>
+            <h1 className="text-5xl md:text-6xl font-bold text-white flex items-center gap-4">
+              <div className="bg-white/20 p-5 rounded-2xl backdrop-blur-xl">
+                <TestTube className="text-white" size={64} />
+              </div>
+              Laboratorio Clínico
+            </h1>
+            <p className="text-cyan-100 mt-4 text-2xl font-medium">
+              🔬 Gestión de pruebas y resultados de laboratorio
+            </p>
+          </div>
+          <button
+            onClick={() => {
+              setEditingTest(null);
+              setShowTestForm(true);
+            }}
+            className="bg-white text-cyan-600 px-8 py-5 rounded-2xl hover:shadow-2xl transition-all flex items-center gap-3 text-xl font-bold hover:scale-105"
+          >
+            <Plus size={28} />
+            Nueva Prueba
+          </button>
         </div>
-        <button
-          onClick={() => {
-            setEditingTest(null);
-            setShowTestForm(true);
-          }}
-          className="bg-gradient-to-r from-blue-600 to-cyan-600 text-white px-6 py-3 rounded-xl hover:shadow-lg transition-all flex items-center gap-2"
-        >
-          <Plus size={20} />
-          Nueva Prueba
-        </button>
       </div>
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-6 gap-4">
-        <div className="bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl p-4 text-white shadow-lg">
-          <div className="flex items-center justify-between mb-2">
-            <TestTube size={24} className="text-blue-200" />
+      <div className="grid grid-cols-1 md:grid-cols-6 gap-6">
+        <div className="bg-gradient-to-br from-blue-500 via-blue-600 to-blue-700 rounded-3xl p-8 text-white shadow-[0_20px_60px_-15px_rgba(59,130,246,0.5)] hover:shadow-[0_25px_70px_-15px_rgba(59,130,246,0.6)] transition-all hover:scale-105">
+          <div className="flex items-center justify-between mb-3">
+            <div className="bg-white/20 p-3 rounded-xl">
+              <TestTube size={32} className="text-white" />
+            </div>
           </div>
-          <p className="text-blue-100 text-xs">Total Pruebas</p>
-          <p className="text-2xl font-bold mt-1">{totalTests}</p>
+          <p className="text-blue-100 text-base font-medium">Total Pruebas</p>
+          <p className="text-4xl font-bold mt-2">{totalTests}</p>
         </div>
 
-        <div className="bg-gradient-to-br from-gray-500 to-gray-600 rounded-2xl p-4 text-white shadow-lg">
-          <div className="flex items-center justify-between mb-2">
-            <Clock size={24} className="text-gray-200" />
+        <div className="bg-gradient-to-br from-gray-500 via-gray-600 to-gray-700 rounded-3xl p-8 text-white shadow-[0_20px_60px_-15px_rgba(107,114,128,0.5)] hover:shadow-[0_25px_70px_-15px_rgba(107,114,128,0.6)] transition-all hover:scale-105">
+          <div className="flex items-center justify-between mb-3">
+            <div className="bg-white/20 p-3 rounded-xl">
+              <Clock size={32} className="text-white" />
+            </div>
           </div>
-          <p className="text-gray-100 text-xs">Pendientes</p>
-          <p className="text-2xl font-bold mt-1">{pendingTests}</p>
+          <p className="text-gray-100 text-base font-medium">Pendientes</p>
+          <p className="text-4xl font-bold mt-2">{pendingTests}</p>
         </div>
 
-        <div className="bg-gradient-to-br from-yellow-500 to-yellow-600 rounded-2xl p-4 text-white shadow-lg animate-pulse">
-          <div className="flex items-center justify-between mb-2">
-            <Activity size={24} className="text-yellow-200" />
+        <div className="bg-gradient-to-br from-yellow-500 via-yellow-600 to-yellow-700 rounded-3xl p-8 text-white shadow-[0_20px_60px_-15px_rgba(234,179,8,0.5)] hover:shadow-[0_25px_70px_-15px_rgba(234,179,8,0.6)] transition-all hover:scale-105 animate-pulse">
+          <div className="flex items-center justify-between mb-3">
+            <div className="bg-white/20 p-3 rounded-xl">
+              <Activity size={32} className="text-white" />
+            </div>
           </div>
-          <p className="text-yellow-100 text-xs">En Proceso</p>
-          <p className="text-2xl font-bold mt-1">{inProgressTests}</p>
+          <p className="text-yellow-100 text-base font-medium">En Proceso</p>
+          <p className="text-4xl font-bold mt-2">{inProgressTests}</p>
         </div>
 
         <div className="bg-gradient-to-br from-green-500 to-green-600 rounded-2xl p-4 text-white shadow-lg">
